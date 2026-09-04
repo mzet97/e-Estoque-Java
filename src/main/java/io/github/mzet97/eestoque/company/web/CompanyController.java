@@ -58,6 +58,16 @@ public class CompanyController {
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<CompanyViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.company.application.GridifyCompaniesQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<CompanyViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetCompanyByIdQuery(id));

@@ -14,5 +14,7 @@ public interface CompanyRepository {
 
     SearchResult<Company> search(CompanyCriteria criteria);
 
+    SearchResult<Company> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria);
+
     void deleteById(UUID id);
 }

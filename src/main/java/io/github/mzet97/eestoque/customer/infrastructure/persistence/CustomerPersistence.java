@@ -18,6 +18,7 @@ import io.github.mzet97.eestoque.customer.domain.CustomerCriteria;
 import io.github.mzet97.eestoque.customer.domain.CustomerRepository;
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 
 interface CustomerSpringDataRepository
@@ -75,6 +76,12 @@ class JpaCustomerRepository implements CustomerRepository {
         var page = jpa.findAll(spec, pageable);
         List<Customer> data = page.getContent().stream().map(CustomerMapper::toDomain).toList();
         return new SearchResult<>(data, PagedResult.create(c.page(), c.size(), (int) page.getTotalElements()));
+    }
+
+    @Override
+    public SearchResult<Customer> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.customer(), c, items ->
+                items.stream().map(CustomerMapper::toDomain).toList());
     }
 
     @Override

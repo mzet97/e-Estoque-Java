@@ -17,5 +17,7 @@ public interface InventoryRepository {
 
     SearchResult<InventoryViewData> search(InventoryCriteria criteria);
 
+    SearchResult<InventoryViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria);
+
     void deleteById(UUID id);
 }

@@ -27,6 +27,7 @@ import io.github.mzet97.eestoque.inventory.domain.ProductReader;
 import io.github.mzet97.eestoque.inventory.domain.ProductSnapshot;
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 
 interface InventorySpringDataRepository
@@ -134,6 +135,12 @@ class JpaInventoryRepository implements InventoryRepository {
 
     private Integer quantityOrNull(Integer quantity) {
         return quantity == null || quantity == 0 ? null : quantity;
+    }
+
+    @Override
+    public SearchResult<InventoryViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.inventory(), c, items ->
+                items.stream().map(InventoryMapper::toViewData).toList());
     }
 
     @Override

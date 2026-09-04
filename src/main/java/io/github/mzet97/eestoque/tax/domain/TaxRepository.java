@@ -19,5 +19,7 @@ public interface TaxRepository {
 
     SearchResult<TaxViewData> search(TaxCriteria criteria);
 
+    SearchResult<TaxViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria);
+
     void deleteById(UUID id);
 }

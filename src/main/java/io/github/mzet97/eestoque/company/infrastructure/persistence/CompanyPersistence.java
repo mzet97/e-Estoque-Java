@@ -18,6 +18,7 @@ import io.github.mzet97.eestoque.company.domain.CompanyCriteria;
 import io.github.mzet97.eestoque.company.domain.CompanyRepository;
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 
 interface CompanySpringDataRepository
@@ -75,6 +76,12 @@ class JpaCompanyRepository implements CompanyRepository {
         var page = jpa.findAll(spec, pageable);
         List<Company> data = page.getContent().stream().map(CompanyMapper::toDomain).toList();
         return new SearchResult<>(data, PagedResult.create(c.page(), c.size(), (int) page.getTotalElements()));
+    }
+
+    @Override
+    public SearchResult<Company> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.company(), c, items ->
+                items.stream().map(CompanyMapper::toDomain).toList());
     }
 
     @Override

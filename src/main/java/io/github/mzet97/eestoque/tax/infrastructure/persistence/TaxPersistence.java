@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 import io.github.mzet97.eestoque.tax.domain.Tax;
 import io.github.mzet97.eestoque.tax.domain.TaxCriteria;
@@ -97,6 +98,12 @@ class JpaTaxRepository implements TaxRepository {
         var page = jpa.findAll(spec, pageable);
         List<TaxViewData> data = page.getContent().stream().map(TaxMapper::toViewData).toList();
         return new SearchResult<>(data, PagedResult.create(c.page(), c.size(), (int) page.getTotalElements()));
+    }
+
+    @Override
+    public SearchResult<TaxViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.tax(), c, items ->
+                items.stream().map(TaxMapper::toViewData).toList());
     }
 
     @Override

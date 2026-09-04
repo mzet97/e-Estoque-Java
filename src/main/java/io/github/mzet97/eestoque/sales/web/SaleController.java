@@ -64,6 +64,16 @@ public class SaleController {
                 order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<SaleViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.sales.application.GridifySalesQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<SaleViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetSaleByIdQuery(id));

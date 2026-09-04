@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
@@ -71,5 +70,32 @@ public final class SpecificationSearch {
             return Sort.by(Sort.Direction.ASC, "id");
         }
         return Sort.by(Sort.Direction.ASC, attribute);
+    }
+
+    /**
+     * Página filtrada por FilterNode + ordenação gridify, devolvendo
+     * SearchResult já mapeado. Usado pelos repositórios JPA.
+     */
+    public static <E, R> io.github.mzet97.eestoque.shared.application.SearchResult<R> gridifyPage(
+            org.springframework.data.jpa.repository.JpaSpecificationExecutor<E> executor,
+            Map<String, FilterSpecificationBuilder.FieldDef> fields,
+            io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria,
+            Function<List<E>, List<R>> mapper) {
+        Specification<E> filterSpec = criteria.filter() == null ? null
+                : FilterSpecificationBuilder.toSpecification(criteria.filter(), fields);
+        var orderTerms = io.github.mzet97.eestoque.shared.application.GridifyFilterParser
+                .parseOrderBy(criteria.orderBy());
+        var pageable = PageRequest.of(criteria.page() - 1, criteria.size());
+
+        Specification<E> spec = (root, query, cb) -> {
+            var predicate = filterSpec == null ? cb.conjunction() : filterSpec.toPredicate(root, query, cb);
+            query.orderBy(FilterSpecificationBuilder.orders(orderTerms, fields, root, cb));
+            return predicate;
+        };
+        var page = executor.findAll(spec, pageable);
+
+        var data = mapper.apply(page.getContent());        return new io.github.mzet97.eestoque.shared.application.SearchResult<>(data,
+                io.github.mzet97.eestoque.shared.application.PagedResult.create(criteria.page(), criteria.size(),
+                        (int) page.getTotalElements()));
     }
 }

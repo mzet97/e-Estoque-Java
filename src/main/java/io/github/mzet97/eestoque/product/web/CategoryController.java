@@ -64,6 +64,16 @@ public class CategoryController {
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<CategoryViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.product.application.GridifyCategoriesQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<CategoryViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetCategoryByIdQuery(id));

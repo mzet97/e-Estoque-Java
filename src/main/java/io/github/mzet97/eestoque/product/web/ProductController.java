@@ -62,6 +62,16 @@ public class ProductController {
                 length, idCategory, idCompany, id, createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<ProductViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.product.application.GridifyProductsQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<ProductViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetProductByIdQuery(id));

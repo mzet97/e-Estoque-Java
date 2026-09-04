@@ -23,6 +23,7 @@ import io.github.mzet97.eestoque.sales.domain.SaleType;
 import io.github.mzet97.eestoque.sales.domain.SaleViewData;
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 
 interface SaleSpringDataRepository
@@ -149,6 +150,20 @@ class JpaSaleRepository implements SaleRepository {
             return new SaleViewData(SaleMapper.toDomain(entity), customer, productSnapshots);
         }).toList();
         return new SearchResult<>(data, PagedResult.create(c.page(), c.size(), (int) page.getTotalElements()));
+    }
+
+    @Override
+    public SearchResult<SaleViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.sale(), c, items ->
+                items.stream().map(this::toViewData).toList());
+    }
+
+    private SaleViewData toViewData(SaleJpaEntity entity) {
+        var customer = customers.findById(entity.getIdCustomer()).map(SaleMapper::toCustomerSnapshot).orElse(null);
+        var productSnapshots = entity.getSaleProducts().stream()
+                .map(item -> SaleMapper.toProductSnapshot(item.getProduct()))
+                .toList();
+        return new SaleViewData(SaleMapper.toDomain(entity), customer, productSnapshots);
     }
 
     @Override

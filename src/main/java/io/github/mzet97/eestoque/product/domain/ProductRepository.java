@@ -19,5 +19,7 @@ public interface ProductRepository {
 
     SearchResult<ProductViewData> search(ProductCriteria criteria);
 
+    SearchResult<ProductViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria);
+
     void deleteById(UUID id);
 }

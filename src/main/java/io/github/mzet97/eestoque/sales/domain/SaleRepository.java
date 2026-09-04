@@ -20,6 +20,8 @@ public interface SaleRepository {
 
     SearchResult<SaleViewData> search(SaleCriteria criteria);
 
+    SearchResult<SaleViewData> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria criteria);
+
     /** Soft delete: IsDeleted=true + DeletedAt. */
     void disable(UUID id, java.time.Instant deletedAt);
 }

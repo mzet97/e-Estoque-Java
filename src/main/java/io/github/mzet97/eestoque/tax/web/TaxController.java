@@ -57,6 +57,16 @@ public class TaxController {
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<TaxViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.tax.application.GridifyTaxesQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<TaxViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetTaxByIdQuery(id));

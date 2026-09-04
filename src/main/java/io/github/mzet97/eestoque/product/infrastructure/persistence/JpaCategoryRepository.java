@@ -16,6 +16,7 @@ import io.github.mzet97.eestoque.product.domain.CategoryCriteria;
 import io.github.mzet97.eestoque.product.domain.CategoryRepository;
 import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.application.SearchResult;
+import io.github.mzet97.eestoque.shared.infrastructure.persistence.EntityFieldMaps;
 import io.github.mzet97.eestoque.shared.infrastructure.persistence.SpecificationSearch;
 
 @Repository
@@ -65,6 +66,12 @@ public class JpaCategoryRepository implements CategoryRepository {
         var page = jpa.findAll(spec, pageable);
         List<Category> data = page.getContent().stream().map(CategoryMapper::toDomain).toList();
         return new SearchResult<>(data, PagedResult.create(criteria.page(), criteria.size(), (int) page.getTotalElements()));
+    }
+
+    @Override
+    public SearchResult<Category> searchGridify(io.github.mzet97.eestoque.shared.application.GridifyCriteria c) {
+        return SpecificationSearch.gridifyPage(jpa, EntityFieldMaps.category(), c, items ->
+                items.stream().map(CategoryMapper::toDomain).toList());
     }
 
     @Override

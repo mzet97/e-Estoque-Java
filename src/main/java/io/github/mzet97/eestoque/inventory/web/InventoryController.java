@@ -55,6 +55,16 @@ public class InventoryController {
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
+    @GetMapping("/gridify")
+    public BaseResultList<InventoryViewModel> gridify(
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String orderBy,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new io.github.mzet97.eestoque.inventory.application.GridifyInventoriesQuery(
+                filter, orderBy, page, pageSize));
+    }
+
     @GetMapping("/{id}")
     public BaseResult<InventoryViewModel> getById(@PathVariable UUID id) {
         return queries.dispatch(new GetInventoryByIdQuery(id));
