@@ -15,6 +15,9 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        # Colunas do schema .NET são "timestamp without time zone"
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
   flyway:
     enabled: true
     locations: classpath:db/migration

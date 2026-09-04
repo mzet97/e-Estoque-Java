@@ -15,24 +15,17 @@ import io.github.mzet97.eestoque.product.application.GridifyProductsQuery;
 import io.github.mzet97.eestoque.product.application.GetCategoryByIdQuery;
 import io.github.mzet97.eestoque.product.application.GetProductByIdQuery;
 import io.github.mzet97.eestoque.product.application.ProductViewModel;
-import io.github.mzet97.eestoque.shared.application.BaseResult;
-import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryBus;
-import io.github.mzet97.eestoque.shared.domain.NotFoundException;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataCollection;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /**
- * FR-ODATA-001/005: /odata/Categories e /odata/Products (somente leitura,
+ * FR-ODATA-001/005: /odata/Products e /odata/Categories (somente leitura,
  * subset $filter/$orderby/$top/$skip/$count — ADR-011).
  */
-@RestController
-public class ODataProductControllers {
+public final class ODataProductControllers {
 
-    private final QueryBus queries;
-
-    public ODataProductControllers(QueryBus queries) {
-        this.queries = queries;
+    private ODataProductControllers() {
     }
 
     @RestController
@@ -41,7 +34,7 @@ public class ODataProductControllers {
 
         private final QueryBus queries;
 
-        Products(QueryBus queries) {
+        public Products(QueryBus queries) {
             this.queries = queries;
         }
 
@@ -70,7 +63,7 @@ public class ODataProductControllers {
 
         private final QueryBus queries;
 
-        Categories(QueryBus queries) {
+        public Categories(QueryBus queries) {
             this.queries = queries;
         }
 

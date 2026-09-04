@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -36,12 +35,6 @@ public class OutboxDispatcher {
         List<OutboxEvent> pending = repository.findTop50ByStatusOrderByOccurredAtAsc(OutboxEvent.PENDING);
         for (OutboxEvent event : pending) {
             publish(event);
-        }
-        List<OutboxEvent> retryable = repository.findTop50ByStatusOrderByOccurredAtAsc(OutboxEvent.FAILED);
-        for (OutboxEvent event : retryable) {
-            if (event.getAttempts() < MAX_ATTEMPTS) {
-                publish(event);
-            }
         }
     }
 
@@ -80,18 +73,5 @@ public class OutboxDispatcher {
     @Transactional
     public void scheduledDispatch() {
         dispatchPending();
-    }
-
-    /** Exchanges conhecidas declaradas no startup (parity com .NET). */
-    static TopicExchange[] knownExchanges() {
-        return new TopicExchange[] {
-                new TopicExchange("product-service", true, false),
-                new TopicExchange("category-service", true, false),
-                new TopicExchange("company-service", true, false),
-                new TopicExchange("customer-service", true, false),
-                new TopicExchange("inventory-service", true, false),
-                new TopicExchange("sale-service", true, false),
-                new TopicExchange("tax-service", true, false),
-                new TopicExchange("notification-service", true, false)};
     }
 }

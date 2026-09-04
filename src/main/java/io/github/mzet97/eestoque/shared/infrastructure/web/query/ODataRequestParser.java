@@ -1,7 +1,6 @@
 package io.github.mzet97.eestoque.shared.infrastructure.web.query;
 
 import io.github.mzet97.eestoque.shared.application.GridifyCriteria;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataFilterParser;
 
 /** Vínculo parâmetros OData → GridifyCriteria (subset ADR-011). */
 public final class ODataRequestParser {
