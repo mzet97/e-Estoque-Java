@@ -29,6 +29,7 @@ public class DeleteCategoryHandler implements CommandHandler<DeleteCategoryComma
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public Void handle(DeleteCategoryCommand command) {
         var category = repository.findById(command.id())
                 .orElseThrow(() -> {

@@ -44,6 +44,7 @@ public class CreateCategoryHandler implements CommandHandler<CreateCategoryComma
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public UUID handle(CreateCategoryCommand command) {
         var category = Category.create(command.name(), command.description(), command.shortDescription(),
                 clock.instant());

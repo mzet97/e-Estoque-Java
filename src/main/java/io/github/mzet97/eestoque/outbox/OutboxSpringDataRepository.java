@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-interface OutboxSpringDataRepository extends JpaRepository<OutboxEvent, UUID> {
+public interface OutboxSpringDataRepository extends JpaRepository<OutboxEvent, UUID> {
 
     List<OutboxEvent> findTop50ByStatusOrderByOccurredAtAsc(String status);
 }

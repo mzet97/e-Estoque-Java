@@ -38,6 +38,7 @@ public class UpdateCategoryHandler implements CommandHandler<UpdateCategoryComma
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public UUID handle(UpdateCategoryCommand command) {
         var category = repository.findById(command.id())
                 .orElseThrow(() -> {

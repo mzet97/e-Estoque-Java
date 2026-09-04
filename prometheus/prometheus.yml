@@ -1,0 +1,118 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    cluster: 'e-estoque-cluster'
+    environment: 'production'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Nginx Load Balancer metrics
+  - job_name: 'nginx-lb'
+    static_configs:
+      - targets: ['nginx-lb:80']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: /nginx_status
+    honor_labels: true
+
+  # e-Estoque API através do Load Balancer
+  - job_name: 'e-estoque-api-lb'
+    static_configs:
+      - targets: ['nginx-lb:80']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # e-Estoque API Instance 1
+  - job_name: 'e-estoque-api-1'
+    static_configs:
+      - targets: ['e-estoque-api-1:8080']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # e-Estoque API Instance 2
+  - job_name: 'e-estoque-api-2'
+    static_configs:
+      - targets: ['e-estoque-api-2:8080']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # e-Estoque API Instance 3
+  - job_name: 'e-estoque-api-3'
+    static_configs:
+      - targets: ['e-estoque-api-3:8080']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'tempo'
+    static_configs:
+      - targets: ['tempo:3200']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'mimir'
+    static_configs:
+      - targets: ['mimir:9009']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+    scrape_interval: 30s
+    metrics_path: /metrics

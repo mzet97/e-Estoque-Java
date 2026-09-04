@@ -61,6 +61,15 @@ management:
       enabled: true
     redis:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${EESTOQUE_OTLP_ENDPOINT:http://localhost:4317/v1/traces}
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 server:
   port: 8080
