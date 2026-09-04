@@ -20,7 +20,7 @@ import org.hibernate.annotations.Immutable;
 
 /** Tabela public."Sales". */
 @Entity
-@Table(name = "\"Sales\"", schema = "public")
+@Table(name = "Sales", schema = "public")
 class SaleJpaEntity {
 
     @Id
@@ -188,7 +188,7 @@ class SaleJpaEntity {
 
 /** Tabela public."SaleProducts". */
 @Entity
-@Table(name = "\"SaleProducts\"", schema = "public")
+@Table(name = "SaleProducts", schema = "public")
 class SaleProductJpaEntity {
 
     @Id
@@ -293,7 +293,7 @@ class SaleProductJpaEntity {
 /** Projeção somente leitura da tabela public."Customers". */
 @Entity
 @Immutable
-@Table(name = "\"Customers\"", schema = "public")
+@Table(name = "Customers", schema = "public")
 class CustomerSnapshotJpaEntity {
 
     @Id

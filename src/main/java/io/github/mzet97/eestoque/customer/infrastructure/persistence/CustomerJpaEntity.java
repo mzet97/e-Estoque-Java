@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
  * CustomerAddress_* (incluindo o typo _County de Country); Email varchar(80).
  */
 @Entity
-@Table(name = "\"Customers\"", schema = "public")
+@Table(name = "Customers", schema = "public")
 public class CustomerJpaEntity {
 
     @Id

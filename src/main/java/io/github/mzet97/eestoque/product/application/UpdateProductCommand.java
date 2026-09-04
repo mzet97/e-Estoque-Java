@@ -4,20 +4,18 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import io.github.mzet97.eestoque.shared.application.Command;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 /** FR-PROD-002 — id da rota prevalece (MD-01). */
 public record UpdateProductCommand(
         UUID id,
-        @Size(min = 3, max = 250) String name,
-        @Size(min = 3, max = 500) String description,
-        @Size(min = 3, max = 250) String shortDescription,
+        String name,
+        String description,
+        String shortDescription,
         BigDecimal price,
         BigDecimal weight,
         BigDecimal height,
         BigDecimal length,
-        @Size(min = 3, max = 5000) String image,
-        @NotNull UUID idCategory,
-        @NotNull UUID idCompany) implements Command<UUID> {
+        String image,
+        UUID idCategory,
+        UUID idCompany) implements Command<UUID> {
 }

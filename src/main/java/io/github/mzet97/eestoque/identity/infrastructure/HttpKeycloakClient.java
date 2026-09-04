@@ -25,8 +25,9 @@ public class HttpKeycloakClient implements KeycloakClient {
     private final RestClient restClient;
     private final KeycloakProperties properties;
 
-    public HttpKeycloakClient(RestClient.Builder restClientBuilder, KeycloakProperties properties) {
-        this.restClient = restClientBuilder.build();
+    public HttpKeycloakClient(KeycloakProperties properties) {
+        // Boot 4 modularizado não auto-configura RestClient.Builder; criamos direto.
+        this.restClient = RestClient.create();
         this.properties = properties;
     }
 

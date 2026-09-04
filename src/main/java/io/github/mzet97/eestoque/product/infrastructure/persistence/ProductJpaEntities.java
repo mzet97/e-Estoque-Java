@@ -20,7 +20,7 @@ import org.hibernate.annotations.Immutable;
  * EAGER reproduz os Include obrigatórios do .NET (GetById/Search/Gridify).
  */
 @Entity
-@Table(name = "\"Products\"", schema = "public")
+@Table(name = "Products", schema = "public")
 class ProductJpaEntity {
 
     @Id
@@ -212,9 +212,9 @@ class ProductJpaEntity {
  * Projeção somente leitura da tabela public."Companies" para o módulo
  * product (mesma estratégia de um futuro serviço independente).
  */
-@Entity
+@Entity(name = "ProductCompanySummary")
 @Immutable
-@Table(name = "\"Companies\"", schema = "public")
+@Table(name = "Companies", schema = "public")
 class CompanySummaryJpaEntity {
 
     @Id

@@ -16,7 +16,7 @@ import org.hibernate.annotations.Immutable;
 
 /** Tabela public."Taxs". Category é projeção somente leitura. */
 @Entity
-@Table(name = "\"Taxs\"", schema = "public")
+@Table(name = "Taxs", schema = "public")
 public class TaxJpaEntity {
 
     @Id
@@ -139,9 +139,9 @@ public class TaxJpaEntity {
 }
 
 /** Projeção somente leitura da tabela public."Categories". */
-@Entity
+@Entity(name = "TaxCategoryRef")
 @Immutable
-@Table(name = "\"Categories\"", schema = "public")
+@Table(name = "Categories", schema = "public")
 class CategoryRefJpaEntity {
 
     @Id

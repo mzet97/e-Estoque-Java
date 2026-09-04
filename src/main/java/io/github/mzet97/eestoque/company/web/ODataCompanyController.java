@@ -35,11 +35,11 @@ public class ODataCompanyController {
             @RequestParam(name = "$skip", required = false) Integer skip,
             @RequestParam(name = "$count", defaultValue = "false") boolean count) {
         var criteria = ODataRequestParser.toCriteria(filter, orderBy, top, skip);
-        var result = queries.dispatch(new GridifyCompaniesQuery(filter, orderBy, criteria.page(), criteria.size()));
+        var result = queries.dispatch(new GridifyCompaniesQuery(filter, orderBy, top, skip, true));
         return ODataCollection.of(result.data(), count, result.pagedResult().rowCount());
     }
 
-    @GetMapping("/{key}")
+    @GetMapping("/{key:.+}")
     public CompanyViewModel byKey(@PathVariable String key) {
         var id = UUID.fromString(key.replace("(", "").replace(")", ""));
         return queries.dispatch(new GetCompanyByIdQuery(id)).data();

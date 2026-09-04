@@ -62,7 +62,7 @@ public class InventoryController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize) {
         return queries.dispatch(new io.github.mzet97.eestoque.inventory.application.GridifyInventoriesQuery(
-                filter, orderBy, page, pageSize));
+                filter, orderBy, page, pageSize, false));
     }
 
     @GetMapping("/{id}")

@@ -7,6 +7,7 @@ import io.github.mzet97.eestoque.product.domain.ProductRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /** Handlers gridify do módulo product (FR-CAT-006 / FR-PROD-006). */
 public final class GridifyHandlers {
@@ -31,8 +32,9 @@ public final class GridifyHandlers {
 
         @Override
         public BaseResultList<CategoryViewModel> handle(GridifyCategoriesQuery query) {
-            var result = repository.searchGridify(GridifyRequestParser.toCriteria(query.filter(), query.orderBy(),
-                    query.page(), query.pageSize()));
+            var result = repository.searchGridify(query.odataDialect()
+                    ? ODataRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize())
+                    : GridifyRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize()));
             return BaseResultList.of(result.data().stream().map(CategoryViewModel::from).toList(),
                     result.pagedResult());
         }
@@ -55,8 +57,9 @@ public final class GridifyHandlers {
 
         @Override
         public BaseResultList<ProductViewModel> handle(GridifyProductsQuery query) {
-            var result = repository.searchGridify(GridifyRequestParser.toCriteria(query.filter(), query.orderBy(),
-                    query.page(), query.pageSize()));
+            var result = repository.searchGridify(query.odataDialect()
+                    ? ODataRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize())
+                    : GridifyRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize()));
             return BaseResultList.of(result.data().stream().map(ProductViews::toViewModel).toList(),
                     result.pagedResult());
         }

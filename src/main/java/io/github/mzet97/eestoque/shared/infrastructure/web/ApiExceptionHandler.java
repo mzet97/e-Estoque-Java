@@ -31,6 +31,12 @@ public class ApiExceptionHandler {
         return respond(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    /** Rota inexistente (ex.: id vazio) — 404 como no .NET, não 500. */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> noResource(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        return respond(HttpStatus.NOT_FOUND, "Not found");
+    }
+
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> validation(ValidationException ex) {
         return respond(HttpStatus.BAD_REQUEST, ex.getMessage());

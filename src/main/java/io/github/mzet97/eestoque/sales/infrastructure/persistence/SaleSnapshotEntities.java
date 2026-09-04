@@ -15,9 +15,9 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 /** Projeções somente leitura de Products/Categories/Companies para Sales. */
-@Entity
+@Entity(name = "SalesProductSnapshot")
 @Immutable
-@Table(name = "\"Products\"", schema = "public")
+@Table(name = "Products", schema = "public")
 class ProductSnapshotJpaEntity {
 
     @Id
@@ -143,9 +143,9 @@ class ProductSnapshotJpaEntity {
     }
 }
 
-@Entity
+@Entity(name = "SalesCategorySnapshot")
 @Immutable
-@Table(name = "\"Categories\"", schema = "public")
+@Table(name = "Categories", schema = "public")
 class CategorySnapshotJpaEntity {
 
     @Id
@@ -199,9 +199,9 @@ class CategorySnapshotJpaEntity {
     }
 }
 
-@Entity
+@Entity(name = "SalesCompanySnapshot")
 @Immutable
-@Table(name = "\"Companies\"", schema = "public")
+@Table(name = "Companies", schema = "public")
 class CompanySnapshotJpaEntity {
 
     @Id

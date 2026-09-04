@@ -6,6 +6,7 @@ import io.github.mzet97.eestoque.sales.domain.SaleRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /** FR-SALE-006. */
 @Component
@@ -24,8 +25,9 @@ public class GridifySalesHandler implements QueryHandler<GridifySalesQuery, Base
 
     @Override
     public BaseResultList<SaleViewModel> handle(GridifySalesQuery query) {
-        var result = repository.searchGridify(GridifyRequestParser.toCriteria(query.filter(), query.orderBy(),
-                query.page(), query.pageSize()));
+        var result = repository.searchGridify(query.odataDialect()
+                ? ODataRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize())
+                : GridifyRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize()));
         return BaseResultList.of(result.data().stream().map(SaleViews::toViewModel).toList(), result.pagedResult());
     }
 }

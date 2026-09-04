@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.mzet97.eestoque.shared.application.Command;
-import jakarta.validation.constraints.NotNull;
 
 /** FR-SALE-002 — id da rota prevalece (aqui o .NET já fazia isso). */
 public record UpdateSaleCommand(
@@ -19,6 +18,6 @@ public record UpdateSaleCommand(
         Instant deliveryDate,
         Instant saleDate,
         Instant paymentDate,
-        @NotNull UUID idCustomer,
+        UUID idCustomer,
         List<UUID> idsProducts) implements Command<UUID> {
 }

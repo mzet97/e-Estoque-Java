@@ -6,6 +6,7 @@ import io.github.mzet97.eestoque.inventory.domain.InventoryRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /** FR-INV-006. */
 @Component
@@ -25,8 +26,9 @@ public class GridifyInventoriesHandler
 
     @Override
     public BaseResultList<InventoryViewModel> handle(GridifyInventoriesQuery query) {
-        var result = repository.searchGridify(GridifyRequestParser.toCriteria(query.filter(), query.orderBy(),
-                query.page(), query.pageSize()));
+        var result = repository.searchGridify(query.odataDialect()
+                ? ODataRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize())
+                : GridifyRequestParser.toCriteria(query.filter(), query.orderBy(), query.page(), query.pageSize()));
         return BaseResultList.of(result.data().stream().map(InventoryViews::toViewModel).toList(),
                 result.pagedResult());
     }

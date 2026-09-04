@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
  * colunas PascalCase).
  */
 @Entity
-@Table(name = "\"Categories\"", schema = "public")
+@Table(name = "Categories", schema = "public")
 public class CategoryJpaEntity {
 
     @Id

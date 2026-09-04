@@ -23,3 +23,19 @@ Diferenças intencionais entre a API .NET e a Java. Nenhuma breaking change de c
 | ID | Situação |
 |---|---|
 | SG-01 | Ausência de isolamento multi-tenant por Company no .NET (qualquer usuário autenticado lê/escreve qualquer Company id). Mantido por parity; isolamento completo é mudança de contrato (breaking) e exige decisão de produto. Hooks (AuthenticatedCompanyContext) preparados. Testes documentam o comportamento. |
+
+## ACHADOS DA VALIDAÇÃO AO VIVO (Docker WSL + Postgres/Rabbit/Redis/Keycloak reais — 2026-09-04)
+
+| ID | Tipo | Achado e correção |
+|---|---|---|
+| MD-14 | BUG-FIX | Flyway 12 exige `flyway-database-postgresql` explícito (Boot 4 não traz o módulo); sem ele: "Unsupported Database: PostgreSQL 17" |
+| MD-15 | BUG-FIX | Naming strategy default do Boot transformava @Column explícitos em snake_case → `PhysicalNamingStrategyStandardImpl` + `globally_quoted_identifiers` (schema PascalCase .NET exige aspas em runtime) |
+| MD-16 | BUG-FIX | Nomes de entidade Hibernate duplicados entre módulos (snapshots read-only) → `@Entity(name=...)` únicos |
+| MD-17 | BUG-FIX | `Instant` → coluna `timestamp without time zone`: `hibernate.type.preferred_instant_jdbc_type=TIMESTAMP` |
+| MD-18 | BUG-FIX | Boot 4: `RestClient.Builder` sem auto-config no starter webmvc → construção direta no HttpKeycloakClient |
+| MD-19 | BUG-FIX | Jackson: conversor web do Boot 4 (Jackson 3) posicionado primeiro via `extendMessageConverters` (Instant ISO-8601); cache Redis com serializer jsr310 + `transactionAware` (evict pós-commit evita recache stale no PUT) |
+| MD-20 | INTENTIONAL-DESIGN | Constraints Bean Validation removidas dos commands: validação 100% no domínio, preservando o 400 com mensagens exatas do .NET (o @Size localizado gerava 500/pt-BR — quebra de contrato) |
+| MD-21 | FRAMEWORK-DIFFERENCE | `/odata/{E}({key})`: PathPattern não permite variável no meio do segmento → filtro de rewrite `/odata/{E}({key})` → `/odata/{E}/{key}`; `$filter`/`$orderby` traduzidos por parser próprio (ADR-011) |
+| MD-22 | FRAMEWORK-DIFFERENCE | `/actuator/prometheus` público (o scrape do .NET também era) |
+
+Resultado da bateria ao vivo (todos via curl): 401/403/201+Location/200/400 mensagens .NET/404 paridade; login/refresh/register (Keycloak real, snake_case); Company→Product→Inventory→Sale com referências e view models aninhados; soft delete de Sale confirmado no banco (`IsDeleted=t`); hard delete dos demais; gridify (`==`, `*=`, orderBy) e OData (`contains`, `eq`, `$orderby`, `$top`, `$count`, key por parênteses); outbox 16/16 PUBLISHED; exchanges topic criadas no RabbitMQ; entrada de cache presente no Redis; prometheus com 431 linhas de métricas.

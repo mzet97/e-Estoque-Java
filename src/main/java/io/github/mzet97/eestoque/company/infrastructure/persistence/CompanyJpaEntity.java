@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
  * CompanyAddress_* (incluindo o typo _County de Country, paridade com .NET).
  */
 @Entity
-@Table(name = "\"Companies\"", schema = "public")
+@Table(name = "Companies", schema = "public")
 public class CompanyJpaEntity {
 
     @Id

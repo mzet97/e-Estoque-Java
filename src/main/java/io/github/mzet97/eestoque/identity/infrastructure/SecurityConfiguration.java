@@ -25,6 +25,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/health", "/actuator/health", "/actuator/health/**", "/actuator/info")
                         .permitAll()
+                        // Scrape do Prometheus era público no .NET (MapPrometheusScrapingEndpoint)
+                        .requestMatchers("/actuator/prometheus")
+                        .permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/Auth/**")

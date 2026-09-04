@@ -33,7 +33,7 @@ public final class GridifyFilterParser {
     }
 
     private static Condition parseCondition(String condition) {
-        for (var op : List.of("!=", ">=", "<=", "^=", "$=", "*", "=", ">", "<")) {
+        for (var op : List.of("==", "!=", ">=", "<=", "^=", "$=", "*=", "=", ">", "<")) {
             int idx = condition.indexOf(op);
             if (idx <= 0) {
                 continue;
@@ -42,6 +42,7 @@ public final class GridifyFilterParser {
             var rawValue = condition.substring(idx + op.length()).trim();
 
             var operator = switch (op) {
+                case "==", "=" -> FilterNode.Operator.EQ;
                 case "!=" -> FilterNode.Operator.NE;
                 case ">=" -> FilterNode.Operator.GE;
                 case "<=" -> FilterNode.Operator.LE;
@@ -49,7 +50,7 @@ public final class GridifyFilterParser {
                 case "$=" -> FilterNode.Operator.ENDS_WITH;
                 case ">" -> FilterNode.Operator.GT;
                 case "<" -> FilterNode.Operator.LT;
-                case "*" -> FilterNode.Operator.CONTAINS;
+                case "*=" -> FilterNode.Operator.CONTAINS;
                 default -> FilterNode.Operator.EQ;
             };
 

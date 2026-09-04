@@ -126,9 +126,9 @@ class InventoryJpaEntity {
 }
 
 /** Projeção somente leitura da tabela public."Products". */
-@Entity
+@Entity(name = "InventoryProductSnapshot")
 @Immutable
-@Table(name = "\"Products\"", schema = "public")
+@Table(name = "Products", schema = "public")
 class ProductSnapshotJpaEntity {
 
     @Id
@@ -255,9 +255,9 @@ class ProductSnapshotJpaEntity {
 }
 
 /** Projeção somente leitura da tabela public."Categories". */
-@Entity
+@Entity(name = "InventoryCategorySnapshot")
 @Immutable
-@Table(name = "\"Categories\"", schema = "public")
+@Table(name = "Categories", schema = "public")
 class CategorySnapshotJpaEntity {
 
     @Id
@@ -312,9 +312,9 @@ class CategorySnapshotJpaEntity {
 }
 
 /** Projeção somente leitura da tabela public."Companies". */
-@Entity
+@Entity(name = "InventoryCompanySnapshot")
 @Immutable
-@Table(name = "\"Companies\"", schema = "public")
+@Table(name = "Companies", schema = "public")
 class CompanySnapshotJpaEntity {
 
     @Id

@@ -64,7 +64,7 @@ public class CustomerController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize) {
         return queries.dispatch(new io.github.mzet97.eestoque.customer.application.GridifyCustomersQuery(
-                filter, orderBy, page, pageSize));
+                filter, orderBy, page, pageSize, false));
     }
 
     @GetMapping("/{id}")

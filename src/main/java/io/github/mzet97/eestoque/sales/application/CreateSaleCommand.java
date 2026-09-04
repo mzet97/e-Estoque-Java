@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.mzet97.eestoque.shared.application.Command;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * FR-SALE-001. totalPrice/totalTax vêm do cliente (parity .NET); enums
@@ -21,6 +20,6 @@ public record CreateSaleCommand(
         Instant deliveryDate,
         Instant saleDate,
         Instant paymentDate,
-        @NotNull UUID idCustomer,
+        UUID idCustomer,
         List<UUID> idsProducts) implements Command<UUID> {
 }
