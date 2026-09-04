@@ -28,7 +28,8 @@ public class SecurityConfiguration {
                         // Scrape do Prometheus era público no .NET (MapPrometheusScrapingEndpoint)
                         .requestMatchers("/actuator/prometheus")
                         .permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
+                                "/v3/api-docs.yaml", "/v3/api-docs")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/Auth/**")
                         .permitAll()
