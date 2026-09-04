@@ -1,0 +1,33 @@
+# Build
+target/
+build/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env (only .env.example is committed)
+.env
+*.local.yml
+
+# Maven wrapper downloads
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# JaCoCo / reports
+site/
+jacoco.exec
