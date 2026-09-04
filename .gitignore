@@ -20,6 +20,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Tooling hooks
+.mimosa/
+
 # Local env (only .env.example is committed)
 .env
 *.local.yml

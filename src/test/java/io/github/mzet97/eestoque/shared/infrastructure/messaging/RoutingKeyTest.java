@@ -11,9 +11,22 @@ import io.github.mzet97.eestoque.shared.domain.DomainEvent;
 
 class RoutingKeyTest {
 
-    static final class SampleCreated extends DomainEvent {
+    static final class SampleCreated implements DomainEvent {
+        private final UUID id;
+        private final Instant occurredAt;
+
         SampleCreated(UUID id, Instant occurredAt) {
-            super(id, occurredAt);
+            this.id = id;
+            this.occurredAt = occurredAt;
+        }
+
+        @Override
+        public UUID aggregateId() {
+            return id;
+        }
+
+        public Instant occurredAt() {
+            return occurredAt;
         }
     }
 

@@ -1,0 +1,97 @@
+package io.github.mzet97.eestoque.product.web;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.github.mzet97.eestoque.product.application.CategoryViewModel;
+import io.github.mzet97.eestoque.product.application.CreateCategoryCommand;
+import io.github.mzet97.eestoque.product.application.CreateCategoryHandler;
+import io.github.mzet97.eestoque.product.application.DeleteCategoryCommand;
+import io.github.mzet97.eestoque.product.application.GetCategoryByIdHandler;
+import io.github.mzet97.eestoque.product.application.GetCategoryByIdQuery;
+import io.github.mzet97.eestoque.product.application.SearchCategoriesHandler;
+import io.github.mzet97.eestoque.product.application.SearchCategoriesQuery;
+import io.github.mzet97.eestoque.product.application.UpdateCategoryCommand;
+import io.github.mzet97.eestoque.shared.application.BaseResult;
+import io.github.mzet97.eestoque.shared.application.BaseResultList;
+import io.github.mzet97.eestoque.shared.application.CommandBus;
+import io.github.mzet97.eestoque.shared.application.QueryBus;
+import jakarta.validation.Valid;
+
+/**
+ * FR-CAT-001..006. Controller fino: valida entrada, despacha commands e
+ * queries e devolve o envelope original ({data, success, message,
+ * pagedResult?}).
+ */
+@RestController
+@RequestMapping("/api/Categories")
+public class CategoryController {
+
+    private final CommandBus commands;
+    private final QueryBus queries;
+
+    public CategoryController(CommandBus commands, QueryBus queries) {
+        this.commands = commands;
+        this.queries = queries;
+    }
+
+    @GetMapping
+    public BaseResultList<CategoryViewModel> search(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String shortDescription,
+            @RequestParam(required = false) UUID id,
+            @RequestParam(required = false) Instant createdAt,
+            @RequestParam(required = false) Instant updatedAt,
+            @RequestParam(required = false) Instant deletedAt,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) Integer pageIndex,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new SearchCategoriesQuery(name, description, shortDescription, id,
+                createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
+    }
+
+    @GetMapping("/{id}")
+    public BaseResult<CategoryViewModel> getById(@PathVariable UUID id) {
+        return queries.dispatch(new GetCategoryByIdQuery(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<BaseResult<CategoryViewModel>> create(@Valid @RequestBody CreateCategoryCommand command) {
+        var id = commands.dispatch(command);
+
+        var result = queries.dispatch(new GetCategoryByIdQuery(id));
+        return ResponseEntity
+                .created(URI.create("/api/Categories/" + id))
+                .body(result);
+    }
+
+    @PutMapping("/{id}")
+    public BaseResult<CategoryViewModel> update(@PathVariable UUID id,
+                                                @Valid @RequestBody UpdateCategoryCommand command) {
+        // MD-01: o id da rota prevalece sobre o corpo.
+        var updatedId = commands.dispatch(new UpdateCategoryCommand(id, command.name(), command.description(),
+                command.shortDescription()));
+
+        return queries.dispatch(new GetCategoryByIdQuery(updatedId));
+    }
+
+    @DeleteMapping("/{id}")
+    public Map<String, Object> delete(@PathVariable UUID id) {
+        commands.dispatch(new DeleteCategoryCommand(id));
+        return Map.of();
+    }
+}
