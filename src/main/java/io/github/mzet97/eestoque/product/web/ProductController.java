@@ -1,0 +1,90 @@
+package io.github.mzet97.eestoque.product.web;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.github.mzet97.eestoque.product.application.CreateProductCommand;
+import io.github.mzet97.eestoque.product.application.DeleteProductCommand;
+import io.github.mzet97.eestoque.product.application.GetProductByIdQuery;
+import io.github.mzet97.eestoque.product.application.ProductViewModel;
+import io.github.mzet97.eestoque.product.application.SearchProductsQuery;
+import io.github.mzet97.eestoque.product.application.UpdateProductCommand;
+import io.github.mzet97.eestoque.shared.application.BaseResult;
+import io.github.mzet97.eestoque.shared.application.BaseResultList;
+import io.github.mzet97.eestoque.shared.application.CommandBus;
+import io.github.mzet97.eestoque.shared.application.QueryBus;
+import jakarta.validation.Valid;
+
+/** FR-PROD-001..006. */
+@RestController
+@RequestMapping("/api/Products")
+public class ProductController {
+
+    private final CommandBus commands;
+    private final QueryBus queries;
+
+    public ProductController(CommandBus commands, QueryBus queries) {
+        this.commands = commands;
+        this.queries = queries;
+    }
+
+    @GetMapping
+    public BaseResultList<ProductViewModel> search(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String shortDescription,
+            @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) BigDecimal weight,
+            @RequestParam(required = false) BigDecimal height,
+            @RequestParam(required = false) BigDecimal length,
+            @RequestParam(required = false) UUID idCategory,
+            @RequestParam(required = false) UUID idCompany,
+            @RequestParam(required = false) UUID id,
+            @RequestParam(required = false) Instant createdAt,
+            @RequestParam(required = false) Instant updatedAt,
+            @RequestParam(required = false) Instant deletedAt,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) Integer pageIndex,
+            @RequestParam(required = false) Integer pageSize) {
+        return queries.dispatch(new SearchProductsQuery(name, description, shortDescription, price, weight, height,
+                length, idCategory, idCompany, id, createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
+    }
+
+    @GetMapping("/{id}")
+    public BaseResult<ProductViewModel> getById(@PathVariable UUID id) {
+        return queries.dispatch(new GetProductByIdQuery(id));
+    }
+
+    @PostMapping
+    public BaseResult<ProductViewModel> create(@Valid @RequestBody CreateProductCommand command) {
+        var id = commands.dispatch(command);
+        return queries.dispatch(new GetProductByIdQuery(id));
+    }
+
+    @PutMapping("/{id}")
+    public BaseResult<ProductViewModel> update(@PathVariable UUID id,
+                                               @Valid @RequestBody UpdateProductCommand command) {
+        var updatedId = commands.dispatch(new UpdateProductCommand(id, command.name(), command.description(),
+                command.shortDescription(), command.price(), command.weight(), command.height(), command.length(),
+                command.image(), command.idCategory(), command.idCompany()));
+        return queries.dispatch(new GetProductByIdQuery(updatedId));
+    }
+
+    @DeleteMapping("/{id}")
+    public Map<String, Object> delete(@PathVariable UUID id) {
+        commands.dispatch(new DeleteProductCommand(id));
+        return Map.of();
+    }
+}
