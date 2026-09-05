@@ -34,3 +34,4 @@ Thumbs.db
 # JaCoCo / reports
 site/
 jacoco.exec
+.mimosa/*
