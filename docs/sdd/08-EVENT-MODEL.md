@@ -30,18 +30,20 @@ Convenção de routing key = nome da classe em dash-case (`ToDashCase`).
 {"message":"Category not found","details":"Category not found"}
 ```
 
-## Fluxo Java (Transactional Outbox — ADR-012)
+## Fluxo Java (Event Publication Registry do Modulith — ADR-012)
 
 ```
 Aggregate (lista domain events)
-  → handler persiste agregado + OutboxEvent (mesma transação)
-  → @TransactionalEventListener(AFTER_COMMIT) / dispatcher assíncrono
-  → converte DomainEvent → IntegrationEvent (JSON camelCase idêntico)
-  → Spring AMQP publish (exchange topic declarada durable)
-  → retry com backoff; falhas permanentes → dead-letter de outbox + log
+  → handler persiste agregado; publisher (ModulithEventPublisher) entrega o evento
+    ao ApplicationEventPublisher
+  → registry grava a publicação em "EVENT_PUBLICATION" (mesma transação)
+  → após o COMMIT, spring-modulith-events-amqp externaliza:
+     converte DomainEvent → JSON camelCase idêntico (@Externalized define exchange::routing-key)
+     → publish na exchange topic durável
+  → registry marca COMPLETED; falhas ficam pendentes p/ resubmission nativa
 ```
 
 - Publicação **nunca antes do commit**.
 - Wire-format idêntico ao .NET (mesmo JSON, mesmas exchanges/routing keys) — consumers externos não quebram.
 - Diferença semântica: .NET = at-most-once sem transação; Java = at-least-once pós-commit (consumers devem tolerar duplicatas; documentado).
-- Idempotência de consumo: fora de escopo (não há consumers no sistema original); `eventId` incluído no envelope de outbox para auditoria.
+- Idempotência de consumo: fora de escopo (não há consumers no sistema original); o registry guarda `eventId`/`eventType`/`status` para auditoria e resubmission.

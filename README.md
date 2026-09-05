@@ -10,10 +10,10 @@ Especificação-antes-de-código (**SDD**): toda a derivação está em [`docs/s
 |---|---|
 | Runtime | Java 25 (records, sealed interfaces, switch expressions, virtual threads) |
 | Web | Spring Boot 4.1.1 · Spring MVC (imperativa) · springdoc-openapi 3.1 |
-| Domínio | DDD + CQRS interno (`CommandBus`/`QueryBus`, ADR-004) · Spring Modulith 2.1.1 |
+| Domínio | DDD + injeção direta de handlers (ADR-004 emendado) · Spring Modulith 2.1.1 |
 | Persistência | Spring Data JPA + Hibernate + PostgreSQL 17 · Flyway |
 | Segurança | Keycloak · Spring Security OAuth2 Resource Server (JWT, realm roles) |
-| Mensageria | RabbitMQ (topic exchanges) + Transactional Outbox (ADR-012) |
+| Mensageria | RabbitMQ (topic exchanges) + Event Publication Registry do Modulith (outbox transacional, ADR-012) |
 | Cache | Spring Cache + Redis (somente referências, ADR-009) |
 | Observabilidade | Actuator · Micrometer · Prometheus · OTLP (Tempo) · structured logging |
 
@@ -23,10 +23,10 @@ Modular monolith orientado a domínio:
 
 ```
 io.github.mzet97.eestoque
-├── shared        # kernel: Entity, eventos, exceções, envelope, buses, filtros
+├── shared        # kernel: Entity, eventos, exceções, envelope, parser gridify/OData, publisher do registry
 ├── identity      # Auth proxy Keycloak + resource server
 ├── company / customer / product (Product+Category) / inventory / tax / sales
-└── outbox        # Transactional Outbox + dispatcher AMQP
+└── (eventos: Event Publication Registry do Modulith — tabela "EVENT_PUBLICATION" no Postgres)
 ```
 
 Cada módulo: `domain` (puro, sem Spring/Jackson) → `application` (commands/queries + handlers `@Transactional`) → `infrastructure` (JPA/AMQP) → `web` (controllers finos).
@@ -36,7 +36,7 @@ flowchart LR
     FE[Frontend Next.js] -->|JWT Bearer| API[e-Estoque-Java]
     API -->|OIDC/JWT| KC[Keycloak]
     API --> PG[(PostgreSQL)]
-    API -->|Outbox + AMQP| RMQ[(RabbitMQ)]
+    API -->|Event Publication Registry + AMQP| RMQ[(RabbitMQ)]
     API -->|Spring Cache| RD[(Redis)]
     API --> OBS[Prometheus · Grafana · Loki · Tempo]
 ```
@@ -58,11 +58,11 @@ Serviços: API `:8081` · Keycloak `:8080` (realm `e-estoque` importado; usuári
 ### Testes
 
 ```bash
-./mvnw test        # unitários + Modulith verify (sem Docker)
+./mvnw test        # unitários + Modulith verify + ArchUnit + Instancio (sem Docker)
 ./mvnw verify      # + integração Testcontainers (PostgreSQL/RabbitMQ) quando houver Docker
 ```
 
-Testes de integração usam `@Testcontainers(disabledWithoutDocker = true)` — em CI (com Docker) rodam 100% da suíte (NFR-TEST-002).
+Testes de integração usam `@Testcontainers(disabledWithoutDocker = true)` — em CI (com Docker) rodam 100% da suíte (NFR-TEST-002). `ArchitectureTest` (ArchUnit) fixa as regras de dependência entre camadas; `CategoryInstancioTest` (Instancio) gera dados aleatórios nos limites de validação .NET.
 
 ## Migração .NET → Java
 
@@ -71,11 +71,11 @@ Guia de equivalências e diferenças intencionais:
 | .NET | Java |
 |---|---|
 | ASP.NET Core controllers | Spring MVC controllers finos |
-| MediatR + pipeline behaviors | `CommandBus`/`QueryBus` + handlers Spring (ADR-004) |
+| MediatR + pipeline behaviors | Handlers Spring injetados diretamente nos controllers, sem bus (ADR-004 emendado) |
 | FluentValidation (entidades) | Validação de domínio com mensagens idênticas (`shared.domain.validation.Checks`) |
 | EF Core + Migrations | Spring Data JPA + Flyway (`V1__baseline.sql` = schema .NET) |
 | Keycloak.AuthServices | spring-boot-starter-security-oauth2-resource-server + conversor `realm_access.roles` |
-| RabbitMQ.Client (fire-and-forget) | Spring AMQP + Transactional Outbox (at-least-once, ADR-012) |
+| RabbitMQ.Client (fire-and-forget) | Event Publication Registry do Modulith + Spring AMQP (at-least-once, ADR-012) |
 | Serilog → Loki | Logback estruturado + Micrometer Tracing → OTLP |
 | OData + Gridify | Adapters próprios (subset, ADR-011) → Specifications |
 

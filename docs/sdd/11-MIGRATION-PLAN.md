@@ -12,7 +12,7 @@ Loop por slice: SPEC → TEST → IMPLEMENT → VERIFY (`./mvnw test`) → REFAC
 | 6 | Customers | CRUD |
 | 7 | Taxes | CRUD |
 | 8 | Sales | Sale+SaleProduct, soft delete, referências |
-| 9 | Events/RabbitMQ + Outbox | outbox table (Flyway V2), dispatcher, wire-format parity, DLQ de outbox |
+| 9 | Events/RabbitMQ + Registry | tabela "EVENT_PUBLICATION" (Flyway V2), Event Publication Registry do Modulith + externalização AMQP, wire-format parity, resubmission |
 | 10 | Cache Redis | Spring Cache seletivo + fallback |
 | 11 | OData/Gridify compat | adapters de filtering (subset OData v4 + Gridify syntax) |
 | 12 | Observability | actuator, micrometer tracing, structured logs, métricas de negócio |

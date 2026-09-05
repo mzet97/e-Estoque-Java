@@ -4,12 +4,12 @@
 
 | Nível | Stack | Escopo | Execução |
 |---|---|---|---|
-| Unit | JUnit 5, Mockito, AssertJ | domínio (invariantes, factories, eventos), handlers com repositórios mockados, converters, mappers, gridify/odata parser | sempre |
-| Web | MockMvc + `@WebMvcTest`/security config | contratos: rota, status, envelope, 401/403 | sempre |
-| Integration | Testcontainers (PostgreSQL, RabbitMQ, Keycloak) + `@SpringBootTest` + MockMvc/TestRestTemplate | Controller→Application→JPA→PostgreSQL; outbox→RabbitMQ; JWT real | CI/ambiente com Docker (`disabledWithoutDocker = true`) |
-| Architecture | Spring Modulith `ApplicationModules.verify()` + ArchUnit | boundaries, dependências proibidas | sempre |
+| Unit | JUnit 5, Mockito, AssertJ, Instancio | domínio (invariantes, factories, eventos — dados aleatórios gerados), handlers com repositórios mockados, converters, mappers, gridify/odata parser | sempre |
+| Web | MockMvc + `@WebMvcTest`/security config (handlers mockados com `@MockitoBean`) | contratos: rota, status, envelope, 401/403 | sempre |
+| Integration | Testcontainers (PostgreSQL, RabbitMQ, Keycloak) + `@SpringBootTest` + MockMvc/TestRestTemplate | Controller→Application→JPA→PostgreSQL; registry→RabbitMQ; JWT real | CI/ambiente com Docker (`disabledWithoutDocker = true`) |
+| Architecture | Spring Modulith `ApplicationModules.verify()` + ArchUnit (`ArchitectureTest`) | boundaries, dependências proibidas (domínio/application sem web-persistência; web não bypassa application; injeção por construtor) | sempre |
 | Security | MockMvc + JWTs emitidos por Keycloak container | 401/403/role Create/tenant behavior | integration |
-| Concurrency | integração | deletes concorrentes, idempotência do dispatcher do outbox | integration |
+| Concurrency | integração | deletes concorrentes, idempotência/resubmission do registry | integration |
 
 ## Matriz por requisito (resumo — detalhe em 12-TRACEABILITY)
 
@@ -33,7 +33,7 @@
 
 ## Cobertura
 
-JaCoCo check: linha ≥80%, branch ≥70% (agregado). 100% dos caminhos em: validações de domínio, erros de handler, conversor de autoridades, outbox dispatcher.
+JaCoCo check: linha ≥80%, branch ≥70% (agregado). 100% dos caminhos em: validações de domínio, erros de handler, conversor de autoridades, publisher/registry de eventos.
 
 ## Decisão sobre ambientes sem Docker
 

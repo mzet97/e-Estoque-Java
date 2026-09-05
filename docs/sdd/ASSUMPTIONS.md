@@ -11,7 +11,7 @@ Registro de ambiguidades e a opção conservadora adotada (regra de precedência
 | A-05 | `Include("SaleProduct")` no SaleRepository .NET usa nome de navegação que não existe (`SaleProducts` é o real) | Intent = carregar SaleProducts + Product; replicar o intent (fetch join correto). |
 | A-06 | Ordem dos filtros no CreateProduct (valida entidade antes de checar referências) | Preservada (mensagens/ordem de erro idênticas). |
 | A-07 | `Tax` create não checa existência de Category no handler .NET (só FK no banco) | Parity: não checar (FK 500/23503 caso inexistente). |
-| A-08 | `.NET` publica eventos após save sem transação | Java usa Outbox pós-commit com mesmo wire-format (ADR-012). Semântica at-least-once. |
+| A-08 | `.NET` publica eventos após save sem transação | Java usa o Event Publication Registry do Modulith (outbox transacional, pós-commit) com mesmo wire-format (ADR-012). Semântica at-least-once. |
 | A-09 | Datas de eventos/payloads .NET usam `DateTime.Now` local; coluna é naive | Java grava/lê UTC (ISO-8601) na mesma coluna naive; payloads de evento serializam Instant ISO-8601 UTC. Documentado como INTENTIONAL-DESIGN (UTC como fonte de verdade). |
 | A-10 | `SearchSaleQuery.SaleType`/`PaymentType` recebem string; helper converte com defaults (Pix/Unitary) quando inválido | Replicado (StringToEnum com default). |
 | A-11 | OData MaxTop=1000, MaxExpansionDepth=10, rotas `/odata/{Entities}` | Replicado no adapter (subset). |

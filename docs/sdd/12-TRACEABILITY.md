@@ -19,8 +19,8 @@ Atualizada ao fim da migração. Test types: U=unit, W=web (MockMvc), I=integrat
 | FR-HTTP-001/002 | shared envelope | — | ApiExceptionHandler, HealthController | — | W | ✅ |
 | NFR-SEC-001..003 | — | SecurityConfiguration, converter | — | — | W,U | ✅ |
 | NFR-DATA-001/002/003 | — | — | — | Flyway V1+V2, converters | I | ✅ |
-| NFR-REL-001 | events | OutboxEventPublisher/Dispatcher | — | outbox_events | U,I | ✅ |
+| NFR-REL-001 | events | ModulithEventPublisher (Event Publication Registry) | — | "EVENT_PUBLICATION" | U,I | ✅ |
 | NFR-OBS-001 | — | — | actuator + OTLP | — | config | ✅ |
 | NFR-ARCH-001/002 | — | — | — | — | A (Modulith verify) | ✅ |
 
-Cobertura executada localmente (sem Docker): 38 testes (unit + web + Modulith verify) — `./mvnw test` PASS. Testes de integração (Testcontainers) exigem Docker e são habilitados em CI com `-Dintegration=true`.
+Cobertura executada localmente (sem Docker): 42 testes (unit + web + ArchUnit + Instancio + Modulith verify) — `./mvnw test` PASS. Testes de integração (Testcontainers) exigem Docker e são habilitados em CI com `-Dintegration=true`. Validação ao vivo com Docker: sweep de 71/71 checks (2026-09-05, pós-refator de injeção direta).

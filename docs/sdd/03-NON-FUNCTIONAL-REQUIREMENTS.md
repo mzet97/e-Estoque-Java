@@ -22,7 +22,7 @@ PostgreSQL 17; schema idêntico ao da migration .NET (tabelas, colunas, tipos, �
 `BigDecimal` (nunca double); precisão do Postgres `decimal` (numeric sem escala definida) preservada; sem arredondamento no servidor (não há cálculo financeiro no servidor no sistema original).
 
 ### NFR-REL-001 — Eventos
-Publicação pós-commit garantida (Transactional Outbox), mesma wire-format .NET (exchanges topic, routing key dash-case, JSON camelCase). Notificação de erros de negócio mantida.
+Publicação pós-commit garantida (Event Publication Registry do Spring Modulith — outbox transacional), mesma wire-format .NET (exchanges topic, routing key dash-case, JSON camelCase). Notificação de erros de negócio mantida.
 
 ### NFR-OBS-001 — Observabilidade
 Actuator (health/info/metrics/prometheus), Micrometer Tracing + OTLP, logs estruturados com traceId/spanId, Loki-compatible. Prometheus scrape path equivalente.
