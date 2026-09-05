@@ -49,11 +49,6 @@ public final class SaleHandlers {
         }
 
         @Override
-        public Class<CreateSaleCommand> commandType() {
-            return CreateSaleCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateSaleCommand command) {
             if (!referenceReader.customerExists(command.idCustomer())) {
@@ -104,11 +99,6 @@ public final class SaleHandlers {
             this.notifications = notifications;
             this.eventPublisher = eventPublisher;
             this.clock = clock;
-        }
-
-        @Override
-        public Class<UpdateSaleCommand> commandType() {
-            return UpdateSaleCommand.class;
         }
 
         @Override
@@ -166,11 +156,6 @@ public final class SaleHandlers {
         }
 
         @Override
-        public Class<DeleteSaleCommand> commandType() {
-            return DeleteSaleCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteSaleCommand command) {
             var sale = repository.findById(command.id())
@@ -196,11 +181,6 @@ public final class SaleHandlers {
         }
 
         @Override
-        public Class<GetSaleByIdQuery> queryType() {
-            return GetSaleByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<SaleViewModel> handle(GetSaleByIdQuery query) {
             var viewData = repository.findDetailedById(query.id())
                     .orElseThrow(() -> {
@@ -218,11 +198,6 @@ public final class SaleHandlers {
 
         public SearchSalesHandler(SaleRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchSalesQuery> queryType() {
-            return SearchSalesQuery.class;
         }
 
         @Override

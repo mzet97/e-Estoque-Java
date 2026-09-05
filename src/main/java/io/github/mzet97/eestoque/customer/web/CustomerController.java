@@ -14,16 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.mzet97.eestoque.customer.application.CustomerViewModel;
 import io.github.mzet97.eestoque.customer.application.CreateCustomerCommand;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.CreateCustomerHandler;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.DeleteCustomerHandler;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.GetCustomerByIdHandler;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.SearchCustomersHandler;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.UpdateCustomerHandler;
+import io.github.mzet97.eestoque.customer.application.CustomerViewModel;
 import io.github.mzet97.eestoque.customer.application.DeleteCustomerCommand;
 import io.github.mzet97.eestoque.customer.application.GetCustomerByIdQuery;
+import io.github.mzet97.eestoque.customer.application.GridifyCustomersHandler;
+import io.github.mzet97.eestoque.customer.application.GridifyCustomersQuery;
 import io.github.mzet97.eestoque.customer.application.SearchCustomersQuery;
 import io.github.mzet97.eestoque.customer.application.UpdateCustomerCommand;
 import io.github.mzet97.eestoque.shared.application.BaseResult;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
-import io.github.mzet97.eestoque.shared.application.CommandBus;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
 import jakarta.validation.Valid;
 
 /** FR-CUSTOMER-001..006. */
@@ -31,12 +36,22 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/Customers")
 public class CustomerController {
 
-    private final CommandBus commands;
-    private final QueryBus queries;
+    private final SearchCustomersHandler searchHandler;
+    private final GridifyCustomersHandler gridifyHandler;
+    private final GetCustomerByIdHandler getByIdHandler;
+    private final CreateCustomerHandler createHandler;
+    private final UpdateCustomerHandler updateHandler;
+    private final DeleteCustomerHandler deleteHandler;
 
-    public CustomerController(CommandBus commands, QueryBus queries) {
-        this.commands = commands;
-        this.queries = queries;
+    public CustomerController(SearchCustomersHandler searchHandler, GridifyCustomersHandler gridifyHandler,
+                              GetCustomerByIdHandler getByIdHandler, CreateCustomerHandler createHandler,
+                              UpdateCustomerHandler updateHandler, DeleteCustomerHandler deleteHandler) {
+        this.searchHandler = searchHandler;
+        this.gridifyHandler = gridifyHandler;
+        this.getByIdHandler = getByIdHandler;
+        this.createHandler = createHandler;
+        this.updateHandler = updateHandler;
+        this.deleteHandler = deleteHandler;
     }
 
     @GetMapping
@@ -53,7 +68,7 @@ public class CustomerController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) Integer pageIndex,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new SearchCustomersQuery(name, docId, email, description, phoneNumber, id,
+        return searchHandler.handle(new SearchCustomersQuery(name, docId, email, description, phoneNumber, id,
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
@@ -63,32 +78,31 @@ public class CustomerController {
             @RequestParam(required = false) String orderBy,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new io.github.mzet97.eestoque.customer.application.GridifyCustomersQuery(
-                filter, orderBy, page, pageSize, false));
+        return gridifyHandler.handle(new GridifyCustomersQuery(filter, orderBy, page, pageSize, false));
     }
 
     @GetMapping("/{id}")
     public BaseResult<CustomerViewModel> getById(@PathVariable UUID id) {
-        return queries.dispatch(new GetCustomerByIdQuery(id));
+        return getByIdHandler.handle(new GetCustomerByIdQuery(id));
     }
 
     @PostMapping
     public BaseResult<CustomerViewModel> create(@Valid @RequestBody CreateCustomerCommand command) {
-        var id = commands.dispatch(command);
-        return queries.dispatch(new GetCustomerByIdQuery(id));
+        var id = createHandler.handle(command);
+        return getByIdHandler.handle(new GetCustomerByIdQuery(id));
     }
 
     @PutMapping("/{id}")
     public BaseResult<CustomerViewModel> update(@PathVariable UUID id,
                                                 @Valid @RequestBody UpdateCustomerCommand command) {
-        var updatedId = commands.dispatch(new UpdateCustomerCommand(id, command.name(), command.docId(),
+        var updatedId = updateHandler.handle(new UpdateCustomerCommand(id, command.name(), command.docId(),
                 command.email(), command.description(), command.phoneNumber(), command.customerAddress()));
-        return queries.dispatch(new GetCustomerByIdQuery(updatedId));
+        return getByIdHandler.handle(new GetCustomerByIdQuery(updatedId));
     }
 
     @DeleteMapping("/{id}")
     public Map<String, Object> delete(@PathVariable UUID id) {
-        commands.dispatch(new DeleteCustomerCommand(id));
+        deleteHandler.handle(new DeleteCustomerCommand(id));
         return Map.of();
     }
 }

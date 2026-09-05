@@ -38,11 +38,6 @@ public class CreateCategoryHandler implements CommandHandler<CreateCategoryComma
     }
 
     @Override
-    public Class<CreateCategoryCommand> commandType() {
-        return CreateCategoryCommand.class;
-    }
-
-    @Override
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public UUID handle(CreateCategoryCommand command) {

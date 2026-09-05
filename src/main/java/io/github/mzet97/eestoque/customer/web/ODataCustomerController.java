@@ -10,21 +10,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mzet97.eestoque.customer.application.CustomerViewModel;
+import io.github.mzet97.eestoque.customer.application.CustomerHandlers.GetCustomerByIdHandler;
 import io.github.mzet97.eestoque.customer.application.GetCustomerByIdQuery;
+import io.github.mzet97.eestoque.customer.application.GridifyCustomersHandler;
 import io.github.mzet97.eestoque.customer.application.GridifyCustomersQuery;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataCollection;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /** FR-ODATA-003: /odata/Customers. */
 @RestController
 @RequestMapping("/odata/Customers")
 public class ODataCustomerController {
 
-    private final QueryBus queries;
+    private final GridifyCustomersHandler searchHandler;
+    private final GetCustomerByIdHandler getByIdHandler;
 
-    public ODataCustomerController(QueryBus queries) {
-        this.queries = queries;
+    public ODataCustomerController(GridifyCustomersHandler searchHandler, GetCustomerByIdHandler getByIdHandler) {
+        this.searchHandler = searchHandler;
+        this.getByIdHandler = getByIdHandler;
     }
 
     @GetMapping
@@ -35,13 +38,13 @@ public class ODataCustomerController {
             @RequestParam(name = "$skip", required = false) Integer skip,
             @RequestParam(name = "$count", defaultValue = "false") boolean count) {
         var criteria = ODataRequestParser.toCriteria(filter, orderBy, top, skip);
-        var result = queries.dispatch(new GridifyCustomersQuery(filter, orderBy, top, skip, true));
+        var result = searchHandler.handle(new GridifyCustomersQuery(filter, orderBy, top, skip, true));
         return ODataCollection.of(result.data(), count, result.pagedResult().rowCount());
     }
 
     @GetMapping("/{key:.+}")
     public CustomerViewModel byKey(@PathVariable String key) {
         var id = UUID.fromString(key.replace("(", "").replace(")", ""));
-        return queries.dispatch(new GetCustomerByIdQuery(id)).data();
+        return getByIdHandler.handle(new GetCustomerByIdQuery(id)).data();
     }
 }

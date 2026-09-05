@@ -11,7 +11,7 @@ Diferenças intencionais entre a API .NET e a Java. Nenhuma breaking change de c
 | MD-05 | FRAMEWORK-DIFFERENCE | Eventos via Outbox pós-commit (at-least-once) em vez de publish pós-save sem transação | Mesma wire-format; consumidores devem ser idempotentes (fato já verdadeiro para retries de rede no .NET). |
 | MD-06 | FRAMEWORK-DIFFERENCE | Health: `/actuator/health` + compat `/health`; Prometheus em `/actuator/prometheus` | Actuator substitui HealthChecks/MapPrometheusScrapingEndpoint; compose atualizado. |
 | MD-07 | FRAMEWORK-DIFFERENCE | Swagger UI com springdoc (dev/test) em vez de Swashbuckle | Equivalente funcional. |
-| MD-08 | INTENTIONAL-DESIGN | Command/Query handlers Java não usam MediatR; `CommandBus` interno mínimo | §15 — solução idiomática Spring. |
+| MD-08 | INTENTIONAL-DESIGN | Command/Query handlers Java não usam MediatR; ~~`CommandBus` interno mínimo~~ → **supersede MD-23**: injeção direta dos handlers | §15 — solução idiomática Spring. |
 | MD-09 | INTENTIONAL-DESIGN | Nomes de classes Customer corrigidos (`CreateCustomerCommand` em vez de `CreateCompanyCommand` no pacote Customers) | Copy/paste do .NET; wire-format e rotas inalterados. |
 | MD-10 | INTENTIONAL-DESIGN | Redis usado de fato (Spring Cache seletivo) | .NET provisionava Redis sem uso; ADR-009; nenhum dado crítico exposto a stale. |
 | MD-11 | INTENTIONAL-DESIGN | Outbox adiciona `eventId`/`occurredAt`/`correlationId` no envelope interno de despacho (não no payload publicado) | Rastreabilidade; payload publicado permanece idêntico ao .NET. |
@@ -38,4 +38,15 @@ Diferenças intencionais entre a API .NET e a Java. Nenhuma breaking change de c
 | MD-21 | FRAMEWORK-DIFFERENCE | `/odata/{E}({key})`: PathPattern não permite variável no meio do segmento → filtro de rewrite `/odata/{E}({key})` → `/odata/{E}/{key}`; `$filter`/`$orderby` traduzidos por parser próprio (ADR-011) |
 | MD-22 | FRAMEWORK-DIFFERENCE | `/actuator/prometheus` público (o scrape do .NET também era) |
 
-Resultado da bateria ao vivo (todos via curl): 401/403/201+Location/200/400 mensagens .NET/404 paridade; login/refresh/register (Keycloak real, snake_case); Company→Product→Inventory→Sale com referências e view models aninhados; soft delete de Sale confirmado no banco (`IsDeleted=t`); hard delete dos demais; gridify (`==`, `*=`, orderBy) e OData (`contains`, `eq`, `$orderby`, `$top`, `$count`, key por parênteses); outbox 16/16 PUBLISHED; exchanges topic criadas no RabbitMQ; entrada de cache presente no Redis; prometheus com 431 linhas de métricas.
+## REFACTOR + HARDENING (2026-09-05 — injeção direta, ArchUnit, correção do V2)
+
+| ID | Tipo | Achado e correção |
+|---|---|---|
+| MD-23 | INTENTIONAL-DESIGN | `CommandBus`/`QueryBus` internos **removidos** (supersede MD-08): controllers injetam handlers concretos e chamam `handle()`; `commandType()`/`queryType()` eliminados; interfaces reduzem-se a `handle()`. ADR-004 emendado. |
+| MD-24 | ARCH-FIX | Parsers Gridify/OData movidos de `shared.infrastructure.web.query` → `shared.application.query` (eram puros; application não deve depender de infrastructure). Violations reportadas pelo ArchUnit novo. |
+| MD-25 | ARCH-FIX | `NotificationEvent` movido do nested de `ModulithEventPublisher` → `shared.domain` (é o contrato do evento `notification-service::notification-error`, igual aos demais eventos de domínio). |
+| MD-26 | BUG-FIX | `V2__event_publication.sql` era **inaplicável em banco novo**: criava índice em `serialized_event_hash` (coluna inexistente na entidade Modulith 2.1.x) e usava identificadores lowercase — com `globally_quoted_identifiers` o Hibernate valida a entidade contra `"EVENT_PUBLICATION"` + colunas verbatim camelCase citadas. Corrigido; passou a valer de verdade ao aplicar o V2 em ambiente real (os testes Testcontainers estavam skipados sem Docker, o que mascarava o bug). |
+| MD-27 | BUG-FIX | Faltava `spring-modulith-events-jackson`: sem o bean `EventSerializer` os eventos do registry nunca eram externalizados para o RabbitMQ em runtime (os testes de unidade/wire-format não cobrem o auto-config). |
+| MD-28 | TEST-HARDENING | `ArchitectureTest` (ArchUnit 1.4.1): domínio sem web/persistência/JPA; application sem web/servlet/persistência; web não bypassa application; beans de application terminam em `Handler`; eventos `@Externalized` em `..domain..`; injeção só por construtor. `CategoryInstancioTest` (Instancio 5.4.0): 50 agregados aleatórios validando limites .NET e mensagens exatas. |
+
+Resultado da bateria ao vivo pós-refator (2026-09-05): **71/71 checks PASS** contra Postgres 17 + RabbitMQ + Redis + Keycloak reais (mesma bateria de 2026-09-04), com a API empacotada (jar) e injeção direta de handlers. `mvn test`: 42 testes, 0 falhas (3 skipados = integração Testcontainers sem Docker no host). Banco migrado de `outbox_events` (dropada — substituída pelo registry) para `"EVENT_PUBLICATION"`.

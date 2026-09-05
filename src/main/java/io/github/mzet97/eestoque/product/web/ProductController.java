@@ -18,13 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.mzet97.eestoque.product.application.CreateProductCommand;
 import io.github.mzet97.eestoque.product.application.DeleteProductCommand;
 import io.github.mzet97.eestoque.product.application.GetProductByIdQuery;
+import io.github.mzet97.eestoque.product.application.GridifyHandlers.GridifyProductsHandler;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.CreateProductHandler;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.DeleteProductHandler;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.GetProductByIdHandler;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.SearchProductsHandler;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.UpdateProductHandler;
 import io.github.mzet97.eestoque.product.application.ProductViewModel;
 import io.github.mzet97.eestoque.product.application.SearchProductsQuery;
 import io.github.mzet97.eestoque.product.application.UpdateProductCommand;
 import io.github.mzet97.eestoque.shared.application.BaseResult;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
-import io.github.mzet97.eestoque.shared.application.CommandBus;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
 import jakarta.validation.Valid;
 
 /** FR-PROD-001..006. */
@@ -32,12 +36,22 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/Products")
 public class ProductController {
 
-    private final CommandBus commands;
-    private final QueryBus queries;
+    private final SearchProductsHandler searchHandler;
+    private final GridifyProductsHandler gridifyHandler;
+    private final GetProductByIdHandler getByIdHandler;
+    private final CreateProductHandler createHandler;
+    private final UpdateProductHandler updateHandler;
+    private final DeleteProductHandler deleteHandler;
 
-    public ProductController(CommandBus commands, QueryBus queries) {
-        this.commands = commands;
-        this.queries = queries;
+    public ProductController(SearchProductsHandler searchHandler, GridifyProductsHandler gridifyHandler,
+                             GetProductByIdHandler getByIdHandler, CreateProductHandler createHandler,
+                             UpdateProductHandler updateHandler, DeleteProductHandler deleteHandler) {
+        this.searchHandler = searchHandler;
+        this.gridifyHandler = gridifyHandler;
+        this.getByIdHandler = getByIdHandler;
+        this.createHandler = createHandler;
+        this.updateHandler = updateHandler;
+        this.deleteHandler = deleteHandler;
     }
 
     @GetMapping
@@ -58,8 +72,9 @@ public class ProductController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) Integer pageIndex,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new SearchProductsQuery(name, description, shortDescription, price, weight, height,
-                length, idCategory, idCompany, id, createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
+        return searchHandler.handle(new SearchProductsQuery(name, description, shortDescription, price, weight,
+                height, length, idCategory, idCompany, id, createdAt, updatedAt, deletedAt, order, pageIndex,
+                pageSize));
     }
 
     @GetMapping("/gridify")
@@ -68,33 +83,33 @@ public class ProductController {
             @RequestParam(required = false) String orderBy,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new io.github.mzet97.eestoque.product.application.GridifyProductsQuery(
+        return gridifyHandler.handle(new io.github.mzet97.eestoque.product.application.GridifyProductsQuery(
                 filter, orderBy, page, pageSize, false));
     }
 
     @GetMapping("/{id}")
     public BaseResult<ProductViewModel> getById(@PathVariable UUID id) {
-        return queries.dispatch(new GetProductByIdQuery(id));
+        return getByIdHandler.handle(new GetProductByIdQuery(id));
     }
 
     @PostMapping
     public BaseResult<ProductViewModel> create(@Valid @RequestBody CreateProductCommand command) {
-        var id = commands.dispatch(command);
-        return queries.dispatch(new GetProductByIdQuery(id));
+        var id = createHandler.handle(command);
+        return getByIdHandler.handle(new GetProductByIdQuery(id));
     }
 
     @PutMapping("/{id}")
     public BaseResult<ProductViewModel> update(@PathVariable UUID id,
                                                @Valid @RequestBody UpdateProductCommand command) {
-        var updatedId = commands.dispatch(new UpdateProductCommand(id, command.name(), command.description(),
+        var updatedId = updateHandler.handle(new UpdateProductCommand(id, command.name(), command.description(),
                 command.shortDescription(), command.price(), command.weight(), command.height(), command.length(),
                 command.image(), command.idCategory(), command.idCompany()));
-        return queries.dispatch(new GetProductByIdQuery(updatedId));
+        return getByIdHandler.handle(new GetProductByIdQuery(updatedId));
     }
 
     @DeleteMapping("/{id}")
     public Map<String, Object> delete(@PathVariable UUID id) {
-        commands.dispatch(new DeleteProductCommand(id));
+        deleteHandler.handle(new DeleteProductCommand(id));
         return Map.of();
     }
 }

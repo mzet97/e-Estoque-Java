@@ -1,12 +1,10 @@
 package io.github.mzet97.eestoque.shared.application;
 
 /**
- * Handler de um Command. O tipo do command é declarado explicitamente
- * (proxy-safe, sem reflexão sobre generics).
+ * Handler de um Command. Bean injetado diretamente onde é usado — a camada
+ * web conhece o handler concreto (sem bus de mediação).
  */
 public interface CommandHandler<C extends Command<R>, R> {
-
-    Class<C> commandType();
 
     R handle(C command);
 }

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import io.github.mzet97.eestoque.sales.domain.SaleRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 
 /** FR-SALE-006. */
 @Component
@@ -16,11 +16,6 @@ public class GridifySalesHandler implements QueryHandler<GridifySalesQuery, Base
 
     public GridifySalesHandler(SaleRepository repository) {
         this.repository = repository;
-    }
-
-    @Override
-    public Class<GridifySalesQuery> queryType() {
-        return GridifySalesQuery.class;
     }
 
     @Override

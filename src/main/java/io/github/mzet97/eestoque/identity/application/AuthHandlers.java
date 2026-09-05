@@ -21,11 +21,6 @@ public final class AuthHandlers {
         }
 
         @Override
-        public Class<LoginUserCommand> commandType() {
-            return LoginUserCommand.class;
-        }
-
-        @Override
         public TokenResponse handle(LoginUserCommand command) {
             return keycloak.login(command.email(), command.password())
                     .filter(TokenResponse::hasAccessToken)
@@ -43,11 +38,6 @@ public final class AuthHandlers {
         }
 
         @Override
-        public Class<RefreshTokenCommand> commandType() {
-            return RefreshTokenCommand.class;
-        }
-
-        @Override
         public TokenResponse handle(RefreshTokenCommand command) {
             return keycloak.refresh(command.token())
                     .orElseThrow(() -> new ForbiddenAccessException("Invalid refresh token"));
@@ -61,11 +51,6 @@ public final class AuthHandlers {
 
         public SystemLoginHandler(KeycloakClient keycloak) {
             this.keycloak = keycloak;
-        }
-
-        @Override
-        public Class<SystemLoginCommand> commandType() {
-            return SystemLoginCommand.class;
         }
 
         @Override
@@ -87,11 +72,6 @@ public final class AuthHandlers {
             this.keycloak = keycloak;
             this.loginHandler = loginHandler;
             this.systemLoginHandler = systemLoginHandler;
-        }
-
-        @Override
-        public Class<RegisterUserCommand> commandType() {
-            return RegisterUserCommand.class;
         }
 
         @Override

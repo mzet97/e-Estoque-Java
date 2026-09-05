@@ -10,21 +10,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mzet97.eestoque.company.application.CompanyViewModel;
+import io.github.mzet97.eestoque.company.application.CompanyHandlers.GetCompanyByIdHandler;
 import io.github.mzet97.eestoque.company.application.GetCompanyByIdQuery;
+import io.github.mzet97.eestoque.company.application.GridifyCompaniesHandler;
 import io.github.mzet97.eestoque.company.application.GridifyCompaniesQuery;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataCollection;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /** FR-ODATA-002: /odata/Companies. */
 @RestController
 @RequestMapping("/odata/Companies")
 public class ODataCompanyController {
 
-    private final QueryBus queries;
+    private final GridifyCompaniesHandler searchHandler;
+    private final GetCompanyByIdHandler getByIdHandler;
 
-    public ODataCompanyController(QueryBus queries) {
-        this.queries = queries;
+    public ODataCompanyController(GridifyCompaniesHandler searchHandler, GetCompanyByIdHandler getByIdHandler) {
+        this.searchHandler = searchHandler;
+        this.getByIdHandler = getByIdHandler;
     }
 
     @GetMapping
@@ -35,13 +38,13 @@ public class ODataCompanyController {
             @RequestParam(name = "$skip", required = false) Integer skip,
             @RequestParam(name = "$count", defaultValue = "false") boolean count) {
         var criteria = ODataRequestParser.toCriteria(filter, orderBy, top, skip);
-        var result = queries.dispatch(new GridifyCompaniesQuery(filter, orderBy, top, skip, true));
+        var result = searchHandler.handle(new GridifyCompaniesQuery(filter, orderBy, top, skip, true));
         return ODataCollection.of(result.data(), count, result.pagedResult().rowCount());
     }
 
     @GetMapping("/{key:.+}")
     public CompanyViewModel byKey(@PathVariable String key) {
         var id = UUID.fromString(key.replace("(", "").replace(")", ""));
-        return queries.dispatch(new GetCompanyByIdQuery(id)).data();
+        return getByIdHandler.handle(new GetCompanyByIdQuery(id)).data();
     }
 }

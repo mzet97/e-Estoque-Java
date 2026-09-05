@@ -47,11 +47,6 @@ public final class TaxHandlers {
         }
 
         @Override
-        public Class<CreateTaxCommand> commandType() {
-            return CreateTaxCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateTaxCommand command) {
             var tax = Tax.create(command.name(), command.description(), command.percentage(), command.idCategory(),
@@ -86,11 +81,6 @@ public final class TaxHandlers {
             this.notifications = notifications;
             this.eventPublisher = eventPublisher;
             this.clock = clock;
-        }
-
-        @Override
-        public Class<UpdateTaxCommand> commandType() {
-            return UpdateTaxCommand.class;
         }
 
         @Override
@@ -132,11 +122,6 @@ public final class TaxHandlers {
         }
 
         @Override
-        public Class<DeleteTaxCommand> commandType() {
-            return DeleteTaxCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteTaxCommand command) {
             var tax = repository.findById(command.id())
@@ -162,11 +147,6 @@ public final class TaxHandlers {
         }
 
         @Override
-        public Class<GetTaxByIdQuery> queryType() {
-            return GetTaxByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<TaxViewModel> handle(GetTaxByIdQuery query) {
             var viewData = repository.findDetailedById(query.id())
                     .orElseThrow(() -> {
@@ -184,11 +164,6 @@ public final class TaxHandlers {
 
         public SearchTaxesHandler(TaxRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchTaxesQuery> queryType() {
-            return SearchTaxesQuery.class;
         }
 
         @Override

@@ -25,11 +25,6 @@ public class GetCategoryByIdHandler implements QueryHandler<GetCategoryByIdQuery
     }
 
     @Override
-    public Class<GetCategoryByIdQuery> queryType() {
-        return GetCategoryByIdQuery.class;
-    }
-
-    @Override
     @Cacheable(cacheNames = CACHE, key = "#query.id")
     public BaseResult<CategoryViewModel> handle(GetCategoryByIdQuery query) {
         var category = repository.findById(query.id())

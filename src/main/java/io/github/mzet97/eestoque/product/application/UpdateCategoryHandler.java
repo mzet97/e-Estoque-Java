@@ -32,11 +32,6 @@ public class UpdateCategoryHandler implements CommandHandler<UpdateCategoryComma
     }
 
     @Override
-    public Class<UpdateCategoryCommand> commandType() {
-        return UpdateCategoryCommand.class;
-    }
-
-    @Override
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public UUID handle(UpdateCategoryCommand command) {

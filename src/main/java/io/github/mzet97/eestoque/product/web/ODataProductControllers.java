@@ -10,14 +10,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mzet97.eestoque.product.application.CategoryViewModel;
-import io.github.mzet97.eestoque.product.application.GridifyCategoriesQuery;
-import io.github.mzet97.eestoque.product.application.GridifyProductsQuery;
+import io.github.mzet97.eestoque.product.application.GetCategoryByIdHandler;
 import io.github.mzet97.eestoque.product.application.GetCategoryByIdQuery;
+import io.github.mzet97.eestoque.product.application.GridifyCategoriesQuery;
+import io.github.mzet97.eestoque.product.application.GridifyHandlers.GridifyCategoriesHandler;
+import io.github.mzet97.eestoque.product.application.GridifyHandlers.GridifyProductsHandler;
+import io.github.mzet97.eestoque.product.application.GridifyProductsQuery;
 import io.github.mzet97.eestoque.product.application.GetProductByIdQuery;
+import io.github.mzet97.eestoque.product.application.ProductHandlers.GetProductByIdHandler;
 import io.github.mzet97.eestoque.product.application.ProductViewModel;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataCollection;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
 
 /**
  * FR-ODATA-001/005: /odata/Products e /odata/Categories (somente leitura,
@@ -32,10 +35,12 @@ public final class ODataProductControllers {
     @RequestMapping("/odata/Products")
     public static class Products {
 
-        private final QueryBus queries;
+        private final GridifyProductsHandler searchHandler;
+        private final GetProductByIdHandler getByIdHandler;
 
-        public Products(QueryBus queries) {
-            this.queries = queries;
+        public Products(GridifyProductsHandler searchHandler, GetProductByIdHandler getByIdHandler) {
+            this.searchHandler = searchHandler;
+            this.getByIdHandler = getByIdHandler;
         }
 
         @GetMapping
@@ -45,14 +50,14 @@ public final class ODataProductControllers {
                 @RequestParam(name = "$top", required = false) Integer top,
                 @RequestParam(name = "$skip", required = false) Integer skip,
                 @RequestParam(name = "$count", defaultValue = "false") boolean count) {
-            var result = queries.dispatch(new GridifyProductsQuery(filter, orderBy, top, skip, true));
+            var result = searchHandler.handle(new GridifyProductsQuery(filter, orderBy, top, skip, true));
             return ODataCollection.of(result.data(), count, result.pagedResult().rowCount());
         }
 
         @GetMapping("/{key:.+}")
         public ProductViewModel byKey(@PathVariable String key) {
             var id = UUID.fromString(key.replace("(", "").replace(")", ""));
-            return queries.dispatch(new GetProductByIdQuery(id)).data();
+            return getByIdHandler.handle(new GetProductByIdQuery(id)).data();
         }
     }
 
@@ -60,10 +65,12 @@ public final class ODataProductControllers {
     @RequestMapping("/odata/Categories")
     public static class Categories {
 
-        private final QueryBus queries;
+        private final GridifyCategoriesHandler searchHandler;
+        private final GetCategoryByIdHandler getByIdHandler;
 
-        public Categories(QueryBus queries) {
-            this.queries = queries;
+        public Categories(GridifyCategoriesHandler searchHandler, GetCategoryByIdHandler getByIdHandler) {
+            this.searchHandler = searchHandler;
+            this.getByIdHandler = getByIdHandler;
         }
 
         @GetMapping
@@ -73,14 +80,14 @@ public final class ODataProductControllers {
                 @RequestParam(name = "$top", required = false) Integer top,
                 @RequestParam(name = "$skip", required = false) Integer skip,
                 @RequestParam(name = "$count", defaultValue = "false") boolean count) {
-            var result = queries.dispatch(new GridifyCategoriesQuery(filter, orderBy, top, skip, true));
+            var result = searchHandler.handle(new GridifyCategoriesQuery(filter, orderBy, top, skip, true));
             return ODataCollection.of(result.data(), count, result.pagedResult().rowCount());
         }
 
         @GetMapping("/{key:.+}")
         public CategoryViewModel byKey(@PathVariable String key) {
             var id = UUID.fromString(key.replace("(", "").replace(")", ""));
-            return queries.dispatch(new GetCategoryByIdQuery(id)).data();
+            return getByIdHandler.handle(new GetCategoryByIdQuery(id)).data();
         }
     }
 }

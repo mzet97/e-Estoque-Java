@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import io.github.mzet97.eestoque.company.domain.CompanyRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 
 /** FR-COMPANY-006. */
 @Component
@@ -16,11 +16,6 @@ public class GridifyCompaniesHandler implements QueryHandler<GridifyCompaniesQue
 
     public GridifyCompaniesHandler(CompanyRepository repository) {
         this.repository = repository;
-    }
-
-    @Override
-    public Class<GridifyCompaniesQuery> queryType() {
-        return GridifyCompaniesQuery.class;
     }
 
     @Override

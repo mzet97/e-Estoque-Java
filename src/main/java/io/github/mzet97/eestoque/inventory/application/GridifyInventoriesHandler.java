@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import io.github.mzet97.eestoque.inventory.domain.InventoryRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 
 /** FR-INV-006. */
 @Component
@@ -17,11 +17,6 @@ public class GridifyInventoriesHandler
 
     public GridifyInventoriesHandler(InventoryRepository repository) {
         this.repository = repository;
-    }
-
-    @Override
-    public Class<GridifyInventoriesQuery> queryType() {
-        return GridifyInventoriesQuery.class;
     }
 
     @Override

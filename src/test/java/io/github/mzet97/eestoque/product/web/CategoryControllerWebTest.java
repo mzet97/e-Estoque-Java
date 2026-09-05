@@ -16,29 +16,33 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import io.github.mzet97.eestoque.identity.infrastructure.SecurityConfiguration;
 import io.github.mzet97.eestoque.product.application.CategoryViewModel;
 import io.github.mzet97.eestoque.product.application.CreateCategoryCommand;
+import io.github.mzet97.eestoque.product.application.CreateCategoryHandler;
+import io.github.mzet97.eestoque.product.application.DeleteCategoryHandler;
+import io.github.mzet97.eestoque.product.application.GetCategoryByIdHandler;
 import io.github.mzet97.eestoque.product.application.GetCategoryByIdQuery;
+import io.github.mzet97.eestoque.product.application.GridifyHandlers.GridifyCategoriesHandler;
+import io.github.mzet97.eestoque.product.application.SearchCategoriesHandler;
 import io.github.mzet97.eestoque.product.application.SearchCategoriesQuery;
 import io.github.mzet97.eestoque.product.application.UpdateCategoryCommand;
+import io.github.mzet97.eestoque.product.application.UpdateCategoryHandler;
 import io.github.mzet97.eestoque.shared.application.BaseResult;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
-import io.github.mzet97.eestoque.shared.application.CommandBus;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
+import io.github.mzet97.eestoque.shared.application.PagedResult;
 import io.github.mzet97.eestoque.shared.domain.NotFoundException;
 
 /**
  * Contrato HTTP + regras de autorização (FR-CAT, NFR-SEC-002).
+ * Com injeção direta (sem bus), os mocks são os próprios handlers.
  */
 @WebMvcTest(CategoryController.class)
 @Import(SecurityConfiguration.class)
@@ -47,26 +51,25 @@ class CategoryControllerWebTest {
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    CommandBus commands;
+    @MockitoBean
+    SearchCategoriesHandler searchHandler;
 
-    @Autowired
-    QueryBus queries;
+    @MockitoBean
+    GridifyCategoriesHandler gridifyHandler;
 
-    @TestConfiguration
-    static class BusStubs {
-        @Bean
-        CommandBus commandBus() {
-            return org.mockito.Mockito.mock(CommandBus.class);
-        }
+    @MockitoBean
+    GetCategoryByIdHandler getByIdHandler;
 
-        @Bean
-        QueryBus queryBus() {
-            return org.mockito.Mockito.mock(QueryBus.class);
-        }
-    }
+    @MockitoBean
+    CreateCategoryHandler createHandler;
 
-    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    @MockitoBean
+    UpdateCategoryHandler updateHandler;
+
+    @MockitoBean
+    DeleteCategoryHandler deleteHandler;
+
+    @MockitoBean
     JwtDecoder jwtDecoder;
 
     private static RequestPostProcessor writeRole() {
@@ -89,10 +92,10 @@ class CategoryControllerWebTest {
 
     @Test
     void searchWithValidTokenReturnsEnvelope() throws Exception {
-        when(queries.dispatch(any(SearchCategoriesQuery.class))).thenReturn(
+        when(searchHandler.handle(any(SearchCategoriesQuery.class))).thenReturn(
                 BaseResultList.of(java.util.List.of(
                         new CategoryViewModel(UUID.randomUUID(), "Bebidas", "Desc", "Beb", null, null, null)),
-                        new io.github.mzet97.eestoque.shared.application.PagedResult(1, 1, 10, 1)));
+                        new PagedResult(1, 1, 10, 1)));
 
         mockMvc.perform(get("/api/Categories").param("name", "Bebidas").with(readRole()))
                 .andExpect(status().isOk())
@@ -105,8 +108,8 @@ class CategoryControllerWebTest {
     @Test
     void createWithCreateRoleReturns201AndLocation() throws Exception {
         var id = UUID.randomUUID();
-        when(commands.dispatch(any(CreateCategoryCommand.class))).thenReturn(id);
-        when(queries.dispatch(any(GetCategoryByIdQuery.class))).thenReturn(
+        when(createHandler.handle(any(CreateCategoryCommand.class))).thenReturn(id);
+        when(getByIdHandler.handle(any(GetCategoryByIdQuery.class))).thenReturn(
                 BaseResult.of(new CategoryViewModel(id, "Bebidas", "Desc", "Beb", null, null, null)));
 
         mockMvc.perform(post("/api/Categories")
@@ -130,8 +133,8 @@ class CategoryControllerWebTest {
     void putOverridesRouteIdLikeMigrationDifferenceMD01() throws Exception {
         var routeId = UUID.randomUUID();
         var bodyId = UUID.randomUUID();
-        when(commands.dispatch(any(UpdateCategoryCommand.class))).thenReturn(routeId);
-        when(queries.dispatch(any(GetCategoryByIdQuery.class))).thenReturn(
+        when(updateHandler.handle(any(UpdateCategoryCommand.class))).thenReturn(routeId);
+        when(getByIdHandler.handle(any(GetCategoryByIdQuery.class))).thenReturn(
                 BaseResult.of(new CategoryViewModel(routeId, "Bebidas", "Desc", "Beb", null, null, null)));
 
         mockMvc.perform(put("/api/Categories/" + routeId)
@@ -152,7 +155,7 @@ class CategoryControllerWebTest {
 
     @Test
     void getMissingCategoryReturns404WithErrorEnvelope() throws Exception {
-        when(queries.dispatch(any(GetCategoryByIdQuery.class))).thenThrow(new NotFoundException("Not found"));
+        when(getByIdHandler.handle(any(GetCategoryByIdQuery.class))).thenThrow(new NotFoundException("Not found"));
 
         mockMvc.perform(get("/api/Categories/" + UUID.randomUUID()).with(writeRole()))
                 .andExpect(status().isNotFound())

@@ -43,11 +43,6 @@ public final class CustomerHandlers {
         }
 
         @Override
-        public Class<CreateCustomerCommand> commandType() {
-            return CreateCustomerCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateCustomerCommand command) {
             var customer = Customer.create(command.name(), command.docId(), command.email(), command.description(),
@@ -82,11 +77,6 @@ public final class CustomerHandlers {
             this.notifications = notifications;
             this.eventPublisher = eventPublisher;
             this.clock = clock;
-        }
-
-        @Override
-        public Class<UpdateCustomerCommand> commandType() {
-            return UpdateCustomerCommand.class;
         }
 
         @Override
@@ -128,11 +118,6 @@ public final class CustomerHandlers {
         }
 
         @Override
-        public Class<DeleteCustomerCommand> commandType() {
-            return DeleteCustomerCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteCustomerCommand command) {
             var customer = repository.findById(command.id())
@@ -159,11 +144,6 @@ public final class CustomerHandlers {
         }
 
         @Override
-        public Class<GetCustomerByIdQuery> queryType() {
-            return GetCustomerByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<CustomerViewModel> handle(GetCustomerByIdQuery query) {
             var customer = repository.findById(query.id())
                     .orElseThrow(() -> {
@@ -182,11 +162,6 @@ public final class CustomerHandlers {
 
         public SearchCustomersHandler(CustomerRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchCustomersQuery> queryType() {
-            return SearchCustomersQuery.class;
         }
 
         @Override

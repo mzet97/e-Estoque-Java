@@ -47,11 +47,6 @@ public final class CompanyHandlers {
         }
 
         @Override
-        public Class<CreateCompanyCommand> commandType() {
-            return CreateCompanyCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateCompanyCommand command) {
             var company = Company.create(command.name(), command.docId(), command.email(), command.description(),
@@ -86,11 +81,6 @@ public final class CompanyHandlers {
             this.notifications = notifications;
             this.eventPublisher = eventPublisher;
             this.clock = clock;
-        }
-
-        @Override
-        public Class<UpdateCompanyCommand> commandType() {
-            return UpdateCompanyCommand.class;
         }
 
         @Override
@@ -132,11 +122,6 @@ public final class CompanyHandlers {
         }
 
         @Override
-        public Class<DeleteCompanyCommand> commandType() {
-            return DeleteCompanyCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteCompanyCommand command) {
             var company = repository.findById(command.id())
@@ -163,11 +148,6 @@ public final class CompanyHandlers {
         }
 
         @Override
-        public Class<GetCompanyByIdQuery> queryType() {
-            return GetCompanyByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<CompanyViewModel> handle(GetCompanyByIdQuery query) {
             var company = repository.findById(query.id())
                     .orElseThrow(() -> {
@@ -186,11 +166,6 @@ public final class CompanyHandlers {
 
         public SearchCompaniesHandler(CompanyRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchCompaniesQuery> queryType() {
-            return SearchCompaniesQuery.class;
         }
 
         @Override

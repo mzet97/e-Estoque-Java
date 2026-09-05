@@ -3,8 +3,8 @@ package io.github.mzet97.eestoque.shared.infrastructure.messaging;
 import io.github.mzet97.eestoque.shared.application.BusinessNotificationPublisher;
 import io.github.mzet97.eestoque.shared.application.DomainEventPublisher;
 import io.github.mzet97.eestoque.shared.domain.DomainEvent;
+import io.github.mzet97.eestoque.shared.domain.NotificationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.modulith.events.Externalized;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,13 +12,10 @@ import org.springframework.stereotype.Component;
  * domínio entra no Event Publication Registry (persistido na mesma
  * transação do agregado) e é externalizado para o RabbitMQ somente APÓS o
  * commit (ADR-012). O exchange/routing key são declarados na anotação
- * {@link Externalized} de cada evento.
+ * {@link Externalized @Externalized} de cada evento.
  */
 @Component
 public class ModulithEventPublisher implements DomainEventPublisher, BusinessNotificationPublisher {
-
-    private static final String NOTIFICATION_EXCHANGE = "notification-service";
-    private static final String NOTIFICATION_ROUTING_KEY = "notification-error";
 
     private final ApplicationEventPublisher events;
 
@@ -36,9 +33,5 @@ public class ModulithEventPublisher implements DomainEventPublisher, BusinessNot
     @Override
     public void publishError(String message, String details) {
         events.publishEvent(new NotificationEvent(message, details));
-    }
-
-    @Externalized(NOTIFICATION_EXCHANGE + "::notification-error")
-    public record NotificationEvent(String message, String details) {
     }
 }

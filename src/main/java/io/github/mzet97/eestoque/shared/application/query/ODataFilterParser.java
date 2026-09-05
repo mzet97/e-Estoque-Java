@@ -1,4 +1,4 @@
-package io.github.mzet97.eestoque.shared.infrastructure.web.query;
+package io.github.mzet97.eestoque.shared.application.query;
 
 import java.util.ArrayList;
 import java.util.List;

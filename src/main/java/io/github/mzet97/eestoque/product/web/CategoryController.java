@@ -20,32 +20,43 @@ import io.github.mzet97.eestoque.product.application.CategoryViewModel;
 import io.github.mzet97.eestoque.product.application.CreateCategoryCommand;
 import io.github.mzet97.eestoque.product.application.CreateCategoryHandler;
 import io.github.mzet97.eestoque.product.application.DeleteCategoryCommand;
+import io.github.mzet97.eestoque.product.application.DeleteCategoryHandler;
 import io.github.mzet97.eestoque.product.application.GetCategoryByIdHandler;
 import io.github.mzet97.eestoque.product.application.GetCategoryByIdQuery;
+import io.github.mzet97.eestoque.product.application.GridifyHandlers.GridifyCategoriesHandler;
 import io.github.mzet97.eestoque.product.application.SearchCategoriesHandler;
 import io.github.mzet97.eestoque.product.application.SearchCategoriesQuery;
 import io.github.mzet97.eestoque.product.application.UpdateCategoryCommand;
+import io.github.mzet97.eestoque.product.application.UpdateCategoryHandler;
 import io.github.mzet97.eestoque.shared.application.BaseResult;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
-import io.github.mzet97.eestoque.shared.application.CommandBus;
-import io.github.mzet97.eestoque.shared.application.QueryBus;
 import jakarta.validation.Valid;
 
 /**
- * FR-CAT-001..006. Controller fino: valida entrada, despacha commands e
- * queries e devolve o envelope original ({data, success, message,
+ * FR-CAT-001..006. Controller fino: valida a entrada, chama os handlers
+ * injetados e devolve o envelope original ({data, success, message,
  * pagedResult?}).
  */
 @RestController
 @RequestMapping("/api/Categories")
 public class CategoryController {
 
-    private final CommandBus commands;
-    private final QueryBus queries;
+    private final SearchCategoriesHandler searchHandler;
+    private final GridifyCategoriesHandler gridifyHandler;
+    private final GetCategoryByIdHandler getByIdHandler;
+    private final CreateCategoryHandler createHandler;
+    private final UpdateCategoryHandler updateHandler;
+    private final DeleteCategoryHandler deleteHandler;
 
-    public CategoryController(CommandBus commands, QueryBus queries) {
-        this.commands = commands;
-        this.queries = queries;
+    public CategoryController(SearchCategoriesHandler searchHandler, GridifyCategoriesHandler gridifyHandler,
+                              GetCategoryByIdHandler getByIdHandler, CreateCategoryHandler createHandler,
+                              UpdateCategoryHandler updateHandler, DeleteCategoryHandler deleteHandler) {
+        this.searchHandler = searchHandler;
+        this.gridifyHandler = gridifyHandler;
+        this.getByIdHandler = getByIdHandler;
+        this.createHandler = createHandler;
+        this.updateHandler = updateHandler;
+        this.deleteHandler = deleteHandler;
     }
 
     @GetMapping
@@ -60,7 +71,7 @@ public class CategoryController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) Integer pageIndex,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new SearchCategoriesQuery(name, description, shortDescription, id,
+        return searchHandler.handle(new SearchCategoriesQuery(name, description, shortDescription, id,
                 createdAt, updatedAt, deletedAt, order, pageIndex, pageSize));
     }
 
@@ -70,20 +81,20 @@ public class CategoryController {
             @RequestParam(required = false) String orderBy,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize) {
-        return queries.dispatch(new io.github.mzet97.eestoque.product.application.GridifyCategoriesQuery(
+        return gridifyHandler.handle(new io.github.mzet97.eestoque.product.application.GridifyCategoriesQuery(
                 filter, orderBy, page, pageSize, false));
     }
 
     @GetMapping("/{id}")
     public BaseResult<CategoryViewModel> getById(@PathVariable UUID id) {
-        return queries.dispatch(new GetCategoryByIdQuery(id));
+        return getByIdHandler.handle(new GetCategoryByIdQuery(id));
     }
 
     @PostMapping
     public ResponseEntity<BaseResult<CategoryViewModel>> create(@Valid @RequestBody CreateCategoryCommand command) {
-        var id = commands.dispatch(command);
+        var id = createHandler.handle(command);
 
-        var result = queries.dispatch(new GetCategoryByIdQuery(id));
+        var result = getByIdHandler.handle(new GetCategoryByIdQuery(id));
         return ResponseEntity
                 .created(URI.create("/api/Categories/" + id))
                 .body(result);
@@ -93,15 +104,15 @@ public class CategoryController {
     public BaseResult<CategoryViewModel> update(@PathVariable UUID id,
                                                 @Valid @RequestBody UpdateCategoryCommand command) {
         // MD-01: o id da rota prevalece sobre o corpo.
-        var updatedId = commands.dispatch(new UpdateCategoryCommand(id, command.name(), command.description(),
+        var updatedId = updateHandler.handle(new UpdateCategoryCommand(id, command.name(), command.description(),
                 command.shortDescription()));
 
-        return queries.dispatch(new GetCategoryByIdQuery(updatedId));
+        return getByIdHandler.handle(new GetCategoryByIdQuery(updatedId));
     }
 
     @DeleteMapping("/{id}")
     public Map<String, Object> delete(@PathVariable UUID id) {
-        commands.dispatch(new DeleteCategoryCommand(id));
+        deleteHandler.handle(new DeleteCategoryCommand(id));
         return Map.of();
     }
 }

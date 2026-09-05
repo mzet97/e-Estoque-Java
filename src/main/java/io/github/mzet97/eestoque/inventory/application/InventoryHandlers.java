@@ -47,11 +47,6 @@ public final class InventoryHandlers {
         }
 
         @Override
-        public Class<CreateInventoryCommand> commandType() {
-            return CreateInventoryCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateInventoryCommand command) {
             var inventory = Inventory.create(command.quantity(), command.dateOrder(), command.idProduct(),
@@ -97,11 +92,6 @@ public final class InventoryHandlers {
         }
 
         @Override
-        public Class<UpdateInventoryCommand> commandType() {
-            return UpdateInventoryCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(UpdateInventoryCommand command) {
             var inventory = repository.findById(command.id())
@@ -144,11 +134,6 @@ public final class InventoryHandlers {
         }
 
         @Override
-        public Class<DeleteInventoryCommand> commandType() {
-            return DeleteInventoryCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteInventoryCommand command) {
             var inventory = repository.findById(command.id())
@@ -175,11 +160,6 @@ public final class InventoryHandlers {
         }
 
         @Override
-        public Class<GetInventoryByIdQuery> queryType() {
-            return GetInventoryByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<InventoryViewModel> handle(GetInventoryByIdQuery query) {
             var viewData = repository.findDetailedById(query.id())
                     .orElseThrow(() -> {
@@ -198,11 +178,6 @@ public final class InventoryHandlers {
 
         public SearchInventoriesHandler(InventoryRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchInventoriesQuery> queryType() {
-            return SearchInventoriesQuery.class;
         }
 
         @Override

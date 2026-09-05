@@ -5,11 +5,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.mzet97.eestoque.identity.application.AuthHandlers.LoginUserHandler;
+import io.github.mzet97.eestoque.identity.application.AuthHandlers.RefreshTokenHandler;
+import io.github.mzet97.eestoque.identity.application.AuthHandlers.RegisterUserHandler;
 import io.github.mzet97.eestoque.identity.application.LoginUserCommand;
 import io.github.mzet97.eestoque.identity.application.RefreshTokenCommand;
 import io.github.mzet97.eestoque.identity.application.RegisterUserCommand;
 import io.github.mzet97.eestoque.identity.application.TokenResponse;
-import io.github.mzet97.eestoque.shared.application.CommandBus;
 import jakarta.validation.Valid;
 
 /** FR-AUTH-001..003 (anônimo; proxy para o Keycloak). */
@@ -17,24 +19,29 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/Auth")
 public class AuthController {
 
-    private final CommandBus commands;
+    private final RegisterUserHandler registerHandler;
+    private final LoginUserHandler loginHandler;
+    private final RefreshTokenHandler refreshTokenHandler;
 
-    public AuthController(CommandBus commands) {
-        this.commands = commands;
+    public AuthController(RegisterUserHandler registerHandler, LoginUserHandler loginHandler,
+                          RefreshTokenHandler refreshTokenHandler) {
+        this.registerHandler = registerHandler;
+        this.loginHandler = loginHandler;
+        this.refreshTokenHandler = refreshTokenHandler;
     }
 
     @PostMapping("/register")
     public TokenResponse register(@Valid @RequestBody RegisterUserCommand command) {
-        return commands.dispatch(command);
+        return registerHandler.handle(command);
     }
 
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginUserCommand command) {
-        return commands.dispatch(command);
+        return loginHandler.handle(command);
     }
 
     @PostMapping("/refresh_token")
     public TokenResponse refreshToken(@Valid @RequestBody RefreshTokenCommand command) {
-        return commands.dispatch(command);
+        return refreshTokenHandler.handle(command);
     }
 }

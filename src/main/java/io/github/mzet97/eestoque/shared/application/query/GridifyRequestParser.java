@@ -1,4 +1,4 @@
-package io.github.mzet97.eestoque.shared.infrastructure.web.query;
+package io.github.mzet97.eestoque.shared.application.query;
 
 import io.github.mzet97.eestoque.shared.application.GridifyCriteria;
 import io.github.mzet97.eestoque.shared.application.GridifyFilterParser;

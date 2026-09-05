@@ -23,11 +23,6 @@ public class DeleteCategoryHandler implements CommandHandler<DeleteCategoryComma
     }
 
     @Override
-    public Class<DeleteCategoryCommand> commandType() {
-        return DeleteCategoryCommand.class;
-    }
-
-    @Override
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(cacheNames = GetCategoryByIdHandler.CACHE, allEntries = true)
     public Void handle(DeleteCategoryCommand command) {

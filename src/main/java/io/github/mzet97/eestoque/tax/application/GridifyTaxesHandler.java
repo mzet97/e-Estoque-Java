@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 import io.github.mzet97.eestoque.tax.domain.TaxRepository;
 
 /** FR-TAX-006. */
@@ -16,11 +16,6 @@ public class GridifyTaxesHandler implements QueryHandler<GridifyTaxesQuery, Base
 
     public GridifyTaxesHandler(TaxRepository repository) {
         this.repository = repository;
-    }
-
-    @Override
-    public Class<GridifyTaxesQuery> queryType() {
-        return GridifyTaxesQuery.class;
     }
 
     @Override

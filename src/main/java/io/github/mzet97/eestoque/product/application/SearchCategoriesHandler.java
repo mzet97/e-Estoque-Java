@@ -17,11 +17,6 @@ public class SearchCategoriesHandler implements QueryHandler<SearchCategoriesQue
     }
 
     @Override
-    public Class<SearchCategoriesQuery> queryType() {
-        return SearchCategoriesQuery.class;
-    }
-
-    @Override
     public BaseResultList<CategoryViewModel> handle(SearchCategoriesQuery query) {
         var result = repository.search(query.toCriteria());
 

@@ -54,11 +54,6 @@ public final class ProductHandlers {
         }
 
         @Override
-        public Class<CreateProductCommand> commandType() {
-            return CreateProductCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(CreateProductCommand command) {
             var product = Product.create(command.name(), command.description(), command.shortDescription(),
@@ -111,11 +106,6 @@ public final class ProductHandlers {
         }
 
         @Override
-        public Class<UpdateProductCommand> commandType() {
-            return UpdateProductCommand.class;
-        }
-
-        @Override
         @Transactional
         public UUID handle(UpdateProductCommand command) {
             var product = productRepository.findById(command.id())
@@ -164,11 +154,6 @@ public final class ProductHandlers {
         }
 
         @Override
-        public Class<DeleteProductCommand> commandType() {
-            return DeleteProductCommand.class;
-        }
-
-        @Override
         @Transactional
         public Void handle(DeleteProductCommand command) {
             var product = repository.findById(command.id())
@@ -195,11 +180,6 @@ public final class ProductHandlers {
         }
 
         @Override
-        public Class<GetProductByIdQuery> queryType() {
-            return GetProductByIdQuery.class;
-        }
-
-        @Override
         public BaseResult<ProductViewModel> handle(GetProductByIdQuery query) {
             var viewData = repository.findDetailedById(query.id())
                     .orElseThrow(() -> {
@@ -218,11 +198,6 @@ public final class ProductHandlers {
 
         public SearchProductsHandler(ProductRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<SearchProductsQuery> queryType() {
-            return SearchProductsQuery.class;
         }
 
         @Override

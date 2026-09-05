@@ -6,8 +6,8 @@ import io.github.mzet97.eestoque.product.domain.CategoryRepository;
 import io.github.mzet97.eestoque.product.domain.ProductRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 
 /** Handlers gridify do módulo product (FR-CAT-006 / FR-PROD-006). */
 public final class GridifyHandlers {
@@ -23,11 +23,6 @@ public final class GridifyHandlers {
 
         public GridifyCategoriesHandler(CategoryRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<GridifyCategoriesQuery> queryType() {
-            return GridifyCategoriesQuery.class;
         }
 
         @Override
@@ -48,11 +43,6 @@ public final class GridifyHandlers {
 
         public GridifyProductsHandler(ProductRepository repository) {
             this.repository = repository;
-        }
-
-        @Override
-        public Class<GridifyProductsQuery> queryType() {
-            return GridifyProductsQuery.class;
         }
 
         @Override

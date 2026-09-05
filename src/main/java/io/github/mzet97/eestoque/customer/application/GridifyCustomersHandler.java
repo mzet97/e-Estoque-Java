@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import io.github.mzet97.eestoque.customer.domain.CustomerRepository;
 import io.github.mzet97.eestoque.shared.application.BaseResultList;
 import io.github.mzet97.eestoque.shared.application.QueryHandler;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.GridifyRequestParser;
-import io.github.mzet97.eestoque.shared.infrastructure.web.query.ODataRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.GridifyRequestParser;
+import io.github.mzet97.eestoque.shared.application.query.ODataRequestParser;
 
 /** FR-CUSTOMER-006. */
 @Component
@@ -17,11 +17,6 @@ public class GridifyCustomersHandler
 
     public GridifyCustomersHandler(CustomerRepository repository) {
         this.repository = repository;
-    }
-
-    @Override
-    public Class<GridifyCustomersQuery> queryType() {
-        return GridifyCustomersQuery.class;
     }
 
     @Override
