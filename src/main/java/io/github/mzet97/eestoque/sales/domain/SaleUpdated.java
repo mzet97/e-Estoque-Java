@@ -5,9 +5,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.modulith.events.Externalized;
+
 import io.github.mzet97.eestoque.shared.domain.DomainEvent;
 
 /** Payload idêntico ao SaleUpdated do .NET (ver A-20 sobre products). */
+@Externalized("sale-service::sale-updated")
 public record SaleUpdated(UUID id, Integer quantity, BigDecimal totalPrice, BigDecimal totalTax, Integer saleType,
                           Integer paymentType, Instant deliveryDate, Instant saleDate, Instant paymentDate,
                           UUID idCustomer, List<UUID> products) implements DomainEvent {

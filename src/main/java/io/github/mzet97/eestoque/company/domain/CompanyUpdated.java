@@ -2,9 +2,12 @@ package io.github.mzet97.eestoque.company.domain;
 
 import java.util.UUID;
 
+import org.springframework.modulith.events.Externalized;
+
 import io.github.mzet97.eestoque.shared.domain.DomainEvent;
 
 /** Payload idêntico ao CompanyUpdated do .NET. */
+@Externalized("company-service::company-updated")
 public record CompanyUpdated(UUID id, String name, String docId, String email, String description,
                              String phoneNumber, Address companyAddress) implements DomainEvent {
 
