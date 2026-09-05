@@ -27,7 +27,13 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["admin", "Create", "Read", "Update", "Delete"],
+      "realmRoles": [
+        "admin",
+        "Create",
+        "Read",
+        "Update",
+        "Delete"
+      ],
       "requiredActions": []
     },
     {
@@ -44,27 +50,76 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user", "Read"],
+      "realmRoles": [
+        "user",
+        "Read"
+      ],
       "requiredActions": []
+    },
+    {
+      "username": "service-account-e-estoque-client",
+      "enabled": true,
+      "serviceAccountClientId": "e-estoque-client",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
     }
   ],
   "roles": {
     "realm": [
-      { "name": "admin" },
-      { "name": "user" },
-      { "name": "Create" },
-      { "name": "Read" },
-      { "name": "Update" },
-      { "name": "Delete" }
+      {
+        "name": "admin"
+      },
+      {
+        "name": "user"
+      },
+      {
+        "name": "Create"
+      },
+      {
+        "name": "Read"
+      },
+      {
+        "name": "Update"
+      },
+      {
+        "name": "Delete"
+      }
     ],
     "client": {
       "e-estoque-client": [
-        { "name": "admin", "composite": false, "clientRole": true },
-        { "name": "user", "composite": false, "clientRole": true },
-        { "name": "Create", "composite": false, "clientRole": true },
-        { "name": "Read", "composite": false, "clientRole": true },
-        { "name": "Update", "composite": false, "clientRole": true },
-        { "name": "Delete", "composite": false, "clientRole": true }
+        {
+          "name": "admin",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "user",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "Create",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "Read",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "Update",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "Delete",
+          "composite": false,
+          "clientRole": true
+        }
       ]
     }
   },
@@ -89,8 +144,19 @@
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
       "clientAuthenticatorType": "client-secret",
-      "defaultClientScopes": ["web-origins", "acr", "profile", "roles", "email"],
-      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
       "access": {
         "view": true,
         "configure": true,

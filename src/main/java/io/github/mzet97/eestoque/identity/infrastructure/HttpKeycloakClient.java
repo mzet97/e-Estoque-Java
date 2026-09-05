@@ -64,18 +64,20 @@ public class HttpKeycloakClient implements KeycloakClient {
     @Override
     public boolean createUser(String systemToken, String username, String password, String email, String firstName,
                               String lastName) {
-        var user = java.util.Map.of(
-                "username", username,
-                "email", email,
-                "firstName", firstName,
-                "lastName", lastName,
-                "emailVerified", true,
-                "enabled", true,
-                "attributes", java.util.Map.of("attribute_key", "client"),
-                "credentials", new Object[] {java.util.Map.of(
-                        "type", "password",
-                        "value", password,
-                        "temporary", false)});
+        // Map.of não aceita null; o payload pode vir com campos null (JSON omite)
+        var user = new java.util.HashMap<String, Object>();
+        user.put("username", username);
+        user.put("email", email);
+        user.put("firstName", firstName);
+        user.put("lastName", lastName);
+        user.put("emailVerified", true);
+        user.put("enabled", true);
+        user.put("attributes", java.util.Map.of("attribute_key", "client"));
+        user.put("credentials", new Object[] {java.util.Map.of(
+                "type", "password",
+                "value", password,
+                "temporary", false)});
+        user.values().removeIf(java.util.Objects::isNull);
 
         try {
             var response = restClient.post()
